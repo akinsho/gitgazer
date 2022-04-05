@@ -23,7 +23,11 @@ var (
 )
 
 func fetchRepositories(user string, channel chan []*github.Repository) error {
-	repos, _, err := client.Repositories.List(context.Background(), user, nil)
+	repos, _, err := client.Repositories.List(
+		context.Background(),
+		user,
+		&github.RepositoryListOptions{Sort: "updated"},
+	)
 	if err != nil {
 		fmt.Println(err)
 	}
