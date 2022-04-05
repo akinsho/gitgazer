@@ -22,7 +22,7 @@ var (
 	view   = View{}
 )
 
-func fetchRepositories(user string, channel chan []*github.Repository) error {
+func fetchRepositories(user string, ch chan []*github.Repository) error {
 	repos, _, err := client.Repositories.List(
 		context.Background(),
 		user,
@@ -31,7 +31,7 @@ func fetchRepositories(user string, channel chan []*github.Repository) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	channel <- repos
+	ch <- repos
 	return nil
 }
 
@@ -54,8 +54,9 @@ func main() {
 	client = github.NewClient(nil)
 	app = tview.NewApplication()
 
-	reposChan := make(chan []*github.Repository)
-	go fetchRepositories("akinsho", reposChan)
+	rc := make(chan []*github.Repository)
+	go fetchRepositories("akinsho", rc)
+	go refreshRepositoryList(rc)
 	grid := Layout()
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
@@ -64,7 +65,6 @@ func main() {
 		}
 		return event
 	})
-	go refreshRepositoryList(reposChan)
 	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		log.Panicln(err)
 	}
