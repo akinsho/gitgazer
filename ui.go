@@ -23,7 +23,7 @@ func openErrorModal(err error) {
 			SetText(err.Error()).
 			AddButtons([]string{"OK"}).
 			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				// app.Stop()
+				app.Stop()
 			})
 		app.SetRoot(modal, true)
 	})
