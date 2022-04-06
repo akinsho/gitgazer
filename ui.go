@@ -16,6 +16,8 @@ type View struct {
 	issuesList  *tview.List
 }
 
+var leftPillSeparator, rightPillSeparator = "█", "█"
+
 // openErrorModal opens a modal with the given error message
 func openErrorModal(err error) {
 	app.QueueUpdateDraw(func() {
@@ -55,6 +57,25 @@ func refreshRepositoryList(user string) {
 	app.Draw()
 }
 
+// renderLabels for an issue by pulling out the name and using ascii pill characters on either
+// side of the name
+func renderLabels(labels []*github.Label) string {
+	var renderedLabels string
+	for _, label := range labels {
+		color := "#" + strings.ToUpper(label.GetColor())
+		name := strings.ToUpper(label.GetName())
+		renderedLabels += fmt.Sprintf(
+			"[%s]%s%s[%s]%s",
+			color,
+			leftPillSeparator,
+			name,
+			color,
+			rightPillSeparator,
+		)
+	}
+	return renderedLabels
+}
+
 func refreshIssuesList(repo *github.Repository) {
 	issues, err := getRepositoryIssues(repo)
 	if err != nil {
@@ -63,9 +84,11 @@ func refreshIssuesList(repo *github.Repository) {
 	}
 	view.issuesList.Clear()
 	for _, issue := range issues {
+		issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
+		title := truncateText(issue.GetTitle(), 50)
 		view.issuesList.AddItem(
-			fmt.Sprintf("%s [red](%s)", issue.GetTitle(), strings.ToUpper(issue.GetState())),
-			fmt.Sprintf("#%d", issue.GetNumber()),
+			fmt.Sprintf("%s %s [red](%s)", issueNumber, title, strings.ToUpper(issue.GetState())),
+			issue.GetUser().GetLogin()+"  "+renderLabels(issue.Labels),
 			0,
 			nil,
 		)
@@ -88,12 +111,9 @@ func getLayout() *tview.Flex {
 		if repo == nil {
 			return
 		}
-		text := fmt.Sprintf(
-			"%s\n%s\n[red]issue count[white]: %d",
-			repo.GetName(),
-			repo.GetDescription(),
-			repo.GetOpenIssuesCount(),
-		)
+		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazersCount())
+		issues := fmt.Sprintf("[red]issue count[white]: %d", repo.GetOpenIssuesCount())
+		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
 		view.description.SetText(text)
 		go refreshIssuesList(repo)
 	})
