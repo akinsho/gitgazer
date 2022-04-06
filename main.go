@@ -43,8 +43,14 @@ func refreshRepositoryList(incomingRepos chan []*github.Repository) {
 	}
 
 	for _, repo := range repos[:20] {
-		if repo.Name != nil {
-			view.repoList.AddItem(repo.GetName(), repo.GetDescription(), 0, nil)
+		name := repo.GetName()
+		description := repo.GetDescription()
+		if name != "" {
+			showDesc := false
+			if len(description) > 0 {
+				showDesc = true
+			}
+			view.repoList.AddItem(repo.GetName(), description, 0, nil).ShowSecondaryText(showDesc)
 		}
 	}
 	app.Draw()
