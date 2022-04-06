@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/go-github/v43/github"
@@ -55,8 +56,6 @@ func refreshRepositoryList(user string) {
 }
 
 func refreshIssuesList(repo *github.Repository) {
-	// fetch the issues for the given repository using fetchRepositoryIssues
-	// then for each issue append it to the issues list
 	issues, err := getRepositoryIssues(repo)
 	if err != nil {
 		openErrorModal(err)
@@ -65,8 +64,8 @@ func refreshIssuesList(repo *github.Repository) {
 	view.issuesList.Clear()
 	for _, issue := range issues {
 		view.issuesList.AddItem(
-			fmt.Sprintf("[%s] %s", issue.GetState(), issue.GetTitle()),
-			issue.GetHTMLURL(),
+			fmt.Sprintf("%s [red](%s)", issue.GetTitle(), strings.ToUpper(issue.GetState())),
+			fmt.Sprintf("#%d", issue.GetNumber()),
 			0,
 			nil,
 		)
