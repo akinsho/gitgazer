@@ -32,10 +32,8 @@ func main() {
 	client = github.NewClient(nil)
 	app = tview.NewApplication()
 
-	rc := make(chan []*github.Repository)
-	go fetchRepositories("akinsho", rc)
-	go refreshRepositoryList(rc)
-	layout := getAppUI()
+	go refreshRepositoryList("akinsho")
+	layout := getLayout()
 	layout.SetTitle("Go gazer")
 	app.SetInputCapture(inputHandler)
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {

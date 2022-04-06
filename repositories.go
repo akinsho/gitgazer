@@ -2,47 +2,42 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/go-github/v43/github"
 )
 
 var repositories []*github.Repository
 
-func fetchRepositories(user string, ch chan []*github.Repository) error {
+func fetchRepositories(user string) ([]*github.Repository, error) {
 	repos, _, err := client.Repositories.List(
 		context.Background(),
 		user,
 		&github.RepositoryListOptions{Sort: "updated"},
 	)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-	ch <- repos
-	return nil
+	return repos, nil
 }
 
-func refreshRepositoryList(incomingRepos chan []*github.Repository) {
-	repositories = <-incomingRepos
-	view.repoList.Clear()
-	if len(repositories) == 0 {
-		view.repoList.AddItem("No repositories found", "", 0, nil)
+// getRepositoryIssues fetches the issues for the given repository.
+// using the github package to fetch the issues.
+func getRepositoryIssues(repo *github.Repository) ([]*github.Issue, error) {
+	issues, _, err := client.Issues.ListByRepo(
+		context.Background(),
+		repo.GetOwner().GetLogin(),
+		repo.GetName(),
+		nil,
+	)
+	if err != nil {
+		return nil, err
 	}
-
-	for _, repo := range repositories[:20] {
-		name := repo.GetName()
-		description := repo.GetDescription()
-		if name != "" {
-			showDesc := false
-			if len(description) > 0 {
-				showDesc = true
-			}
-			view.repoList.AddItem(repo.GetName(), description, 0, nil).ShowSecondaryText(showDesc)
-		}
-	}
-	app.Draw()
+	return issues, nil
 }
 
 func getRepositoryByIndex(index int) *github.Repository {
-	return repositories[index]
+	if len(repositories) > 0 {
+		return repositories[index]
+	}
+	return nil
 }
