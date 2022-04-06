@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	repositories []*github.Repository
-	issues       []*github.Issue
+	repositories   []*github.Repository
+	issuesByRepoID = make(map[int64][]*github.Issue)
 )
 
 func fetchRepositories(user string) ([]*github.Repository, error) {
@@ -34,8 +34,9 @@ func fetchRepositories(user string) ([]*github.Repository, error) {
 // using the github package to fetch the issues.
 func getRepositoryIssues(repo *github.Repository) ([]*github.Issue, error) {
 	//  TODO: Cache invalidation
-	if len(issues) > 0 {
-		return issues, nil
+	repoIssues := issuesByRepoID[repo.GetID()]
+	if len(repoIssues) > 0 {
+		return repoIssues, nil
 	}
 	issues, _, err := client.Issues.ListByRepo(
 		context.Background(),
@@ -46,6 +47,7 @@ func getRepositoryIssues(repo *github.Repository) ([]*github.Issue, error) {
 	if err != nil {
 		return nil, err
 	}
+	issuesByRepoID[repo.GetID()] = issues
 	return issues, nil
 }
 
