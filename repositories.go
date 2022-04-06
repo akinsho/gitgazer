@@ -6,9 +6,18 @@ import (
 	"github.com/google/go-github/v43/github"
 )
 
-var repositories []*github.Repository
+var (
+	repositories []*github.Repository
+	issues       []*github.Issue
+)
 
 func fetchRepositories(user string) ([]*github.Repository, error) {
+	//  TODO: We need a way to invalidate previous fetched repositories
+	// and refetch but this is necessary for now to prevent DDOSing the API.
+	if len(repositories) > 0 {
+		return repositories, nil
+	}
+
 	repos, _, err := client.Repositories.List(
 		context.Background(),
 		user,
@@ -17,12 +26,17 @@ func fetchRepositories(user string) ([]*github.Repository, error) {
 	if err != nil {
 		return nil, err
 	}
+	repositories = repos
 	return repos, nil
 }
 
 // getRepositoryIssues fetches the issues for the given repository.
 // using the github package to fetch the issues.
 func getRepositoryIssues(repo *github.Repository) ([]*github.Issue, error) {
+	//  TODO: Cache invalidation
+	if len(issues) > 0 {
+		return issues, nil
+	}
 	issues, _, err := client.Issues.ListByRepo(
 		context.Background(),
 		repo.GetOwner().GetLogin(),
