@@ -35,9 +35,10 @@ func main() {
 	rc := make(chan []*github.Repository)
 	go fetchRepositories("akinsho", rc)
 	go refreshRepositoryList(rc)
-	grid := Layout()
+	layout := getAppUI()
+	layout.SetTitle("Go gazer")
 	app.SetInputCapture(inputHandler)
-	if err := app.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
+	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		log.Panicln(err)
 	}
 }
