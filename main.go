@@ -1,6 +1,7 @@
 package main
 
 import (
+	"akinsho/gogazer/database"
 	"log"
 
 	"github.com/gdamore/tcell/v2"
@@ -15,9 +16,10 @@ type repo struct {
 }
 
 var (
-	client *github.Client
-	app    *tview.Application
-	view   = View{}
+	client   *github.Client
+	app      *tview.Application
+	gazersDB *database.Gazers
+	view     = View{}
 )
 
 func inputHandler(event *tcell.EventKey) *tcell.EventKey {
@@ -31,8 +33,13 @@ func inputHandler(event *tcell.EventKey) *tcell.EventKey {
 func main() {
 	client = github.NewClient(nil)
 	app = tview.NewApplication()
+	db, err := database.Setup()
+	if err != nil {
+		log.Panicln(err)
+	}
+	gazersDB = db
 
-	go refreshRepositoryList("akinsho")
+	go refreshRepositoryList("akinsho", gazersDB)
 	layout := getLayout()
 	layout.SetTitle("Go gazer")
 	app.SetInputCapture(inputHandler)

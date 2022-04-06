@@ -1,6 +1,7 @@
 package main
 
 import (
+	"akinsho/gogazer/database"
 	"fmt"
 	"strings"
 
@@ -31,7 +32,15 @@ func openErrorModal(err error) {
 	})
 }
 
-func refreshRepositoryList(user string) {
+func saveSelectedRepository(db database.Gazers, i int, s1, s2 string, r rune) {
+	_, err := db.Insert(getRepositoryByIndex(i))
+	if err != nil {
+		openErrorModal(err)
+		return
+	}
+}
+
+func refreshRepositoryList(user string, db *database.Gazers) {
 	repositories, err := fetchRepositories(user)
 	if err != nil {
 		openErrorModal(err)
@@ -54,6 +63,9 @@ func refreshRepositoryList(user string) {
 		}
 		view.repoList.SetSelectedBackgroundColor(tcell.Color101)
 	}
+	view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
+		saveSelectedRepository(*db, i, s1, s2, r)
+	})
 	app.Draw()
 }
 
