@@ -87,7 +87,12 @@ func refreshIssuesList(repo *github.Repository) {
 		issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
 		title := truncateText(issue.GetTitle(), 50)
 		view.issuesList.AddItem(
-			fmt.Sprintf("%s %s [red](%s)", issueNumber, title, strings.ToUpper(issue.GetState())),
+			fmt.Sprintf(
+				"%s %s [red](%s)",
+				issueNumber,
+				title,
+				strings.ToUpper(issue.GetState()),
+			),
 			issue.GetUser().GetLogin()+"  "+renderLabels(issue.Labels),
 			0,
 			nil,
