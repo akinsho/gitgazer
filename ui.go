@@ -4,6 +4,7 @@ import (
 	"akinsho/gogazer/database"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/go-github/v43/github"
@@ -95,20 +96,24 @@ func refreshIssuesList(repo *github.Repository) {
 		return
 	}
 	view.issuesList.Clear()
-	for _, issue := range issues {
-		issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
-		title := truncateText(issue.GetTitle(), 50)
-		view.issuesList.AddItem(
-			fmt.Sprintf(
-				"%s %s [red](%s)",
-				issueNumber,
-				title,
-				strings.ToUpper(issue.GetState()),
-			),
-			issue.GetUser().GetLogin()+"  "+renderLabels(issue.Labels),
-			0,
-			nil,
-		)
+	if len(issues) == 0 {
+		view.issuesList.AddItem("No issues found", "", 0, nil)
+	} else {
+		for _, issue := range issues {
+			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
+			title := truncateText(issue.GetTitle(), 50)
+			view.issuesList.AddItem(
+				fmt.Sprintf(
+					"%s %s [red](%s)",
+					issueNumber,
+					title,
+					strings.ToUpper(issue.GetState()),
+				),
+				issue.GetUser().GetLogin()+"  "+renderLabels(issue.Labels),
+				0,
+				nil,
+			)
+		}
 	}
 	app.Draw()
 }
@@ -126,6 +131,27 @@ func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
+func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
+	var timer *time.Timer
+	return func(index int, mainText, secondaryText string, shortcut rune) {
+		repo := getRepositoryByIndex(index)
+		if repo == nil {
+			return
+		}
+		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazersCount())
+		issues := fmt.Sprintf("[red]issue count[white]: %d", repo.GetOpenIssuesCount())
+		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
+		view.description.SetText(text)
+		if timer != nil {
+			timer.Stop()
+			timer = nil
+		}
+		timer = time.AfterFunc(time.Second, func() {
+			refreshIssuesList(repo)
+		})
+	}
+}
+
 func getLayout() *tview.Flex {
 	view.repoList = tview.NewList()
 	view.issuesList = tview.NewList()
@@ -136,17 +162,7 @@ func getLayout() *tview.Flex {
 	view.repoList.AddItem("Loading repos...", "", 0, nil)
 	view.issuesList.SetBorder(true)
 
-	view.repoList.SetChangedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
-		repo := getRepositoryByIndex(index)
-		if repo == nil {
-			return
-		}
-		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazersCount())
-		issues := fmt.Sprintf("[red]issue count[white]: %d", repo.GetOpenIssuesCount())
-		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
-		view.description.SetText(text)
-		go refreshIssuesList(repo)
-	})
+	view.repoList.SetChangedFunc(updateRepoList())
 
 	sidebar.AddItem(view.repoList, 0, 1, true).SetBorder(true).SetTitle("Repositories")
 	sidebar.SetInputCapture(vimInputHandler)
