@@ -113,6 +113,19 @@ func refreshIssuesList(repo *github.Repository) {
 	app.Draw()
 }
 
+func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
+	if event.Rune() == 'j' {
+		return tcell.NewEventKey(tcell.KeyDown, 'j', tcell.ModNone)
+	} else if event.Rune() == 'k' {
+		return tcell.NewEventKey(tcell.KeyUp, 'k', tcell.ModNone)
+	} else if event.Rune() == 'l' {
+		return tcell.NewEventKey(tcell.KeyRight, 'l', tcell.ModNone)
+	} else if event.Rune() == 'h' {
+		return tcell.NewEventKey(tcell.KeyLeft, 'h', tcell.ModNone)
+	}
+	return event
+}
+
 func getLayout() *tview.Flex {
 	view.repoList = tview.NewList()
 	view.issuesList = tview.NewList()
@@ -136,6 +149,7 @@ func getLayout() *tview.Flex {
 	})
 
 	sidebar.AddItem(view.repoList, 0, 1, true).SetBorder(true).SetTitle("Repositories")
+	sidebar.SetInputCapture(vimInputHandler)
 
 	title := textWidget("Go Gazer")
 	footer := tview.NewBox().SetBorder(true)
@@ -148,7 +162,7 @@ func getLayout() *tview.Flex {
 		AddItem(view.issuesList, 0, 2, false)
 
 	flex := tview.NewFlex().
-		AddItem(sidebar, 0, 1, false).
+		AddItem(sidebar, 0, 1, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(title, 3, 0, false).
 			AddItem(view.main, 0, 3, false).
