@@ -22,8 +22,8 @@ type View struct {
 }
 
 type Panel struct {
-	Title     string
-	Component *tview.List
+	title     string
+	component *tview.List
 }
 
 var (
@@ -231,8 +231,8 @@ func getLayout() *tview.Flex {
 
 func getSidebar() *tview.Flex {
 	entries := []Panel{
-		{Title: "Repositories", Component: view.repos},
-		{Title: "Favourites", Component: view.favourites},
+		{title: "Repositories", component: view.repos},
+		{title: "Favourites", component: view.favourites},
 	}
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
@@ -259,8 +259,8 @@ func getSidebar() *tview.Flex {
 	}
 
 	for index, panel := range entries {
-		panels.AddPage(strconv.Itoa(index), panel.Component, true, index == 0)
-		fmt.Fprintf(view.sidebarTabs, `["%d"][darkcyan]%s[white][""]  `, index, panel.Title)
+		panels.AddPage(strconv.Itoa(index), panel.component, true, index == 0)
+		fmt.Fprintf(view.sidebarTabs, `["%d"][darkcyan]%s[white][""]  `, index, panel.title)
 	}
 
 	sidebar.SetBorder(true).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
