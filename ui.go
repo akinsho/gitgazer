@@ -140,16 +140,16 @@ func refreshIssuesList(repo *github.Repository) {
 			title := truncateText(issue.GetTitle(), 50)
 			str := ""
 			if issue.Author != nil && issue.Author.Login != "" {
-				str += issue.Author.Login
+				str += "@" + issue.Author.Login
 			}
 			view.issues.AddItem(
 				fmt.Sprintf(
-					"%s %s [red](%s)",
+					"%s %s [red]%s",
 					issueNumber,
 					title,
-					strings.ToUpper(issue.GetState()),
+					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
 				),
-				str+"  "+renderLabels(issue.Labels.Nodes),
+				str+"  "+drawLabels(issue.Labels.Nodes),
 				0,
 				nil,
 			)
