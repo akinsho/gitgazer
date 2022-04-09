@@ -155,26 +155,26 @@ func getLayout() *tview.Flex {
 	view.issuesList.SetBorder(true)
 
 	view.repoList.SetChangedFunc(updateRepoList())
+	view.repoList.SetHighlightFullLine(true)
 
 	sidebar.AddItem(view.repoList, 0, 1, true).SetBorder(true).SetTitle("Repositories")
 	sidebar.SetInputCapture(vimInputHandler)
 
 	title := textWidget("Go Gazer")
-	footer := tview.NewBox().SetBorder(true)
 
 	view.description.SetDynamicColors(true).SetBorder(true)
 	title.SetBorder(true)
 
+	view.main.SetDirection(tview.FlexRow)
 	view.main.
 		AddItem(view.description, 0, 1, false).
-		AddItem(view.issuesList, 0, 2, false)
+		AddItem(view.issuesList, 0, 3, false)
 
 	flex := tview.NewFlex().
 		AddItem(sidebar, 0, 1, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(title, 3, 0, false).
-			AddItem(view.main, 0, 3, false).
-			AddItem(footer, 5, 1, false), 0, 3, false)
+			AddItem(view.main, 0, 3, false), 0, 3, false)
 
 	return flex
 }
