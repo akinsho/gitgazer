@@ -126,20 +126,7 @@ func refreshRepositoryList() {
 
 	})
 	app.Draw()
-}
-
-// renderLabels for an issue by pulling out the name and using ascii pill characters on either
-// side of the name
-func renderLabels(labels []*github.Label) string {
-	var renderedLabels string
-	for _, label := range labels {
-		color := "#" + strings.ToUpper(label.Color)
-		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
-		right := fmt.Sprintf("[%s]%s", color, rightPillIcon)
-		name := fmt.Sprintf(`[%s]%s`, color, strings.ToUpper(label.Name))
-		renderedLabels += left + name + right
-	}
-	return renderedLabels
+	app.SetFocus(view.repos)
 }
 
 func refreshIssuesList(repo *github.Repository) {
@@ -190,6 +177,21 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 			refreshIssuesList(repo)
 		})
 	}
+}
+
+// drawLabels for an issue by pulling out the name and using ascii pill characters on either
+// side of the name
+// @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
+func drawLabels(labels []*github.Label) string {
+	var renderedLabels string
+	for _, label := range labels {
+		color := "#" + strings.ToUpper(label.Color)
+		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
+		right := fmt.Sprintf("[%s:-:]%s", color, rightPillIcon)
+		name := fmt.Sprintf(`[black:%s]%s`, color, strings.ToUpper(label.Name))
+		renderedLabels += left + name + right
+	}
+	return renderedLabels
 }
 
 func getLayout() *tview.Flex {
