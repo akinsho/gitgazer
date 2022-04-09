@@ -206,7 +206,10 @@ func getLayout() *tview.Flex {
 	view.repos.SetChangedFunc(updateRepoList())
 	view.repos.SetHighlightFullLine(true)
 
-	title := textWidget("Go Gazer")
+	title := tview.NewTextView()
+	title.
+		SetTextAlign(tview.AlignCenter).
+		SetText("Go gazer")
 
 	view.description.SetDynamicColors(true).SetBorder(true)
 	title.SetBorder(true)
@@ -270,12 +273,4 @@ func getSidebar() *tview.Flex {
 	view.sidebarTabs.Highlight("0")
 
 	return sidebar
-}
-
-func textWidget(text string) *tview.TextView {
-	widget := tview.NewTextView()
-	widget.
-		SetTextAlign(tview.AlignCenter).
-		SetText(text)
-	return widget
 }
