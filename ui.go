@@ -33,40 +33,38 @@ func openErrorModal(err error) {
 }
 
 func refreshRepositoryList() {
-	go func() {
-		repositories, err := github.FetchRepositories(client)
+	repositories, err := github.FetchRepositories(client)
+	if err != nil {
+		openErrorModal(err)
+		return
+	}
+	view.repoList.Clear()
+	if len(repositories) == 0 {
+		view.repoList.AddItem("No repositories found", "", 0, nil)
+	}
+
+	for _, repo := range repositories[:20] {
+		name := repo.Name
+		description := repo.Description
+		if name != "" {
+			showDesc := false
+			if len(description) > 0 {
+				showDesc = true
+			}
+			view.repoList.AddItem(repo.Name, description, 0, nil).
+				ShowSecondaryText(showDesc)
+		}
+		view.repoList.SetSelectedBackgroundColor(tcell.Color101)
+	}
+	view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
+		_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
 		if err != nil {
 			openErrorModal(err)
 			return
 		}
-		view.repoList.Clear()
-		if len(repositories) == 0 {
-			view.repoList.AddItem("No repositories found", "", 0, nil)
-		}
 
-		for _, repo := range repositories[:20] {
-			name := repo.Name
-			description := repo.Description
-			if name != "" {
-				showDesc := false
-				if len(description) > 0 {
-					showDesc = true
-				}
-				view.repoList.AddItem(repo.Name, description, 0, nil).
-					ShowSecondaryText(showDesc)
-			}
-			view.repoList.SetSelectedBackgroundColor(tcell.Color101)
-		}
-		view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-			_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
-			if err != nil {
-				openErrorModal(err)
-				return
-			}
-
-		})
-		app.Draw()
-	}()
+	})
+	app.Draw()
 }
 
 // renderLabels for an issue by pulling out the name and using ascii pill characters on either

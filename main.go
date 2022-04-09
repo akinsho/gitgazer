@@ -41,7 +41,7 @@ func main() {
 	}
 	databaseConn = db
 
-	refreshRepositoryList()
+	go refreshRepositoryList()
 	layout := getLayout()
 	layout.SetTitle("Go gazer")
 	app.SetInputCapture(inputHandler)
