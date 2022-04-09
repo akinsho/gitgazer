@@ -271,6 +271,8 @@ func getSidebar() *tview.Flex {
 		AddItem(view.sidebarTabs, 1, 1, false).
 		AddItem(panels, 0, 1, false)
 
+	sidebar.SetBorderPadding(0, 1, 1, 1)
+
 	view.sidebarTabs.Highlight("0")
 
 	return sidebar
