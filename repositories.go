@@ -25,7 +25,7 @@ func fetchRepositories() ([]*github.Repository, error) {
 
 	repos, _, err := client.Repositories.List(
 		context.Background(),
-		user,
+		"",
 		&github.RepositoryListOptions{Sort: "updated"},
 	)
 	if err != nil {
