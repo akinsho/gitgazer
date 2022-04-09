@@ -3,6 +3,7 @@ package main
 import (
 	"akinsho/gogazer/github"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,11 +14,17 @@ import (
 type View struct {
 	main        *tview.Flex
 	description *tview.TextView
-	repoList    *tview.List
-	issuesList  *tview.List
+	repos       *tview.List
+	issues      *tview.List
+	favourites  *tview.List
+	sidebarTabs *tview.TextView
 }
 
-var leftPillSeparator, rightPillSeparator = "█", "█"
+var (
+	leftPillSeparator  = "█"
+	rightPillSeparator = "█"
+	repoIcon           = ""
+)
 
 // openErrorModal opens a modal with the given error message
 func openErrorModal(err error) {
@@ -38,9 +45,9 @@ func refreshRepositoryList() {
 		openErrorModal(err)
 		return
 	}
-	view.repoList.Clear()
+	view.repos.Clear()
 	if len(repositories) == 0 {
-		view.repoList.AddItem("No repositories found", "", 0, nil)
+		view.repos.AddItem("No repositories found", "", 0, nil)
 	}
 
 	for _, repo := range repositories[:20] {
@@ -51,12 +58,12 @@ func refreshRepositoryList() {
 			if len(description) > 0 {
 				showDesc = true
 			}
-			view.repoList.AddItem(repo.Name, description, 0, nil).
+			view.repos.AddItem(repoIcon+" "+repo.Name, description, 0, nil).
 				ShowSecondaryText(showDesc)
 		}
-		view.repoList.SetSelectedBackgroundColor(tcell.Color101)
+		view.repos.SetSelectedBackgroundColor(tcell.Color101)
 	}
-	view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
+	view.repos.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
 		_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
 		if err != nil {
 			openErrorModal(err)
@@ -82,10 +89,10 @@ func renderLabels(labels []*github.Label) string {
 }
 
 func refreshIssuesList(repo *github.Repository) {
-	view.issuesList.Clear()
+	view.issues.Clear()
 	issues := repo.Issues.Nodes
 	if len(issues) == 0 {
-		view.issuesList.AddItem("No issues found", "", 0, nil)
+		view.issues.AddItem("No issues found", "", 0, nil)
 	} else {
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
@@ -94,7 +101,7 @@ func refreshIssuesList(repo *github.Repository) {
 			if issue.Author != nil && issue.Author.Login != "" {
 				str += issue.Author.Login
 			}
-			view.issuesList.AddItem(
+			view.issues.AddItem(
 				fmt.Sprintf(
 					"%s %s [red](%s)",
 					issueNumber,
@@ -110,7 +117,11 @@ func refreshIssuesList(repo *github.Repository) {
 	app.Draw()
 }
 
-func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
+func sidebarInputHandler(
+	event *tcell.EventKey,
+	nextTab func(),
+	previousTab func(),
+) *tcell.EventKey {
 	if event.Rune() == 'j' {
 		return tcell.NewEventKey(tcell.KeyDown, 'j', tcell.ModNone)
 	} else if event.Rune() == 'k' {
@@ -119,6 +130,12 @@ func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
 		return tcell.NewEventKey(tcell.KeyRight, 'l', tcell.ModNone)
 	} else if event.Rune() == 'h' {
 		return tcell.NewEventKey(tcell.KeyLeft, 'h', tcell.ModNone)
+	} else if event.Key() == tcell.KeyCtrlN {
+		nextTab()
+		return nil
+	} else if event.Key() == tcell.KeyCtrlP {
+		previousTab()
+		return nil
 	}
 	return event
 }
@@ -165,21 +182,25 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 	}
 }
 
+type Panel struct {
+	Title     string
+	Component *tview.List
+}
+
 func getLayout() *tview.Flex {
-	view.repoList = tview.NewList()
-	view.issuesList = tview.NewList()
+	view.repos = tview.NewList()
+	view.issues = tview.NewList()
 	view.description = tview.NewTextView()
 	view.main = tview.NewFlex()
-	sidebar := tview.NewFlex()
+	view.favourites = tview.NewList()
 
-	view.repoList.AddItem("Loading repos...", "", 0, nil)
-	view.issuesList.SetBorder(true)
+	sidebar := getSidebar()
 
-	view.repoList.SetChangedFunc(updateRepoList())
-	view.repoList.SetHighlightFullLine(true)
+	view.repos.AddItem("Loading repos...", "", 0, nil)
+	view.issues.SetBorder(true)
 
-	sidebar.AddItem(view.repoList, 0, 1, true).SetBorder(true).SetTitle("Repositories")
-	sidebar.SetInputCapture(vimInputHandler)
+	view.repos.SetChangedFunc(updateRepoList())
+	view.repos.SetHighlightFullLine(true)
 
 	title := textWidget("Go Gazer")
 
@@ -189,7 +210,7 @@ func getLayout() *tview.Flex {
 	view.main.SetDirection(tview.FlexRow)
 	view.main.
 		AddItem(view.description, 0, 1, false).
-		AddItem(view.issuesList, 0, 3, false)
+		AddItem(view.issues, 0, 3, false)
 
 	flex := tview.NewFlex().
 		AddItem(sidebar, 0, 1, true).
@@ -198,6 +219,53 @@ func getLayout() *tview.Flex {
 			AddItem(view.main, 0, 3, false), 0, 3, false)
 
 	return flex
+}
+
+func getSidebar() *tview.Flex {
+	entries := []Panel{
+		{Title: "Repositories", Component: view.repos},
+		{Title: "Favourites", Component: view.favourites},
+	}
+	sidebar := tview.NewFlex()
+	panels := tview.NewPages()
+	view.sidebarTabs = tview.NewTextView().
+		SetDynamicColors(true).
+		SetRegions(true).
+		SetWrap(false).
+		SetHighlightedFunc(func(added, removed, remaining []string) {
+			panels.SwitchToPage(added[0])
+			app.SetFocus(view.repos)
+		})
+
+	previousTab := func() {
+		tab, _ := strconv.Atoi(view.sidebarTabs.GetHighlights()[0])
+		tab = (tab - 1 + len(entries)) % len(entries)
+		view.sidebarTabs.Highlight(strconv.Itoa(tab)).
+			ScrollToHighlight()
+	}
+	nextTab := func() {
+		tab, _ := strconv.Atoi(view.sidebarTabs.GetHighlights()[0])
+		tab = (tab + 1) % len(entries)
+		view.sidebarTabs.Highlight(strconv.Itoa(tab)).
+			ScrollToHighlight()
+	}
+
+	for index, panel := range entries {
+		panels.AddPage(strconv.Itoa(index), panel.Component, true, index == 0)
+		fmt.Fprintf(view.sidebarTabs, `["%d"][darkcyan]%s[white][""]  `, index, panel.Title)
+	}
+
+	sidebar.SetBorder(true).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		return sidebarInputHandler(event, nextTab, previousTab)
+	})
+
+	sidebar.SetDirection(tview.FlexRow).
+		AddItem(view.sidebarTabs, 1, 1, false).
+		AddItem(panels, 0, 1, false)
+
+	view.sidebarTabs.Highlight("0")
+
+	return sidebar
 }
 
 func textWidget(text string) *tview.TextView {
