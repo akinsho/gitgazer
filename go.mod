@@ -5,14 +5,16 @@ go 1.18
 require (
 	github.com/gdamore/tcell/v2 v2.5.0
 	github.com/google/go-github/v43 v43.0.1-0.20220403164511-1df4afdba0bc
+	github.com/joho/godotenv v1.4.0
 	github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8
+	github.com/shurcooL/githubv4 v0.0.0-20220115235240-a14260e6f8a2
+	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 )
 
 require (
 	github.com/golang/protobuf v1.4.2 // indirect
-	github.com/joho/godotenv v1.4.0 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
-	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
+	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a // indirect
+	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 )

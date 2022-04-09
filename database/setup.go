@@ -1,10 +1,10 @@
 package database
 
 import (
+	"akinsho/gogazer/github"
 	"database/sql"
 	"errors"
 
-	"github.com/google/go-github/v43/github"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -41,9 +41,9 @@ func (g *Gazers) Insert(repo *github.Repository) (int64, error) {
 	}
 	res, err := g.db.Exec(
 		"INSERT INTO gazed_repositories (id, name, description) VALUES (?, ?, ?);",
-		repo.GetID(),
-		repo.GetName(),
-		repo.GetDescription(),
+		repo.ID,
+		repo.Name,
+		repo.Description,
 	)
 	if err != nil {
 		return 0, err

@@ -6,21 +6,16 @@ import (
 	"log"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/google/go-github/v43/github"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/rivo/tview"
+	"github.com/shurcooL/githubv4"
 	"golang.org/x/oauth2"
 )
 
-// Create a struct representing a repository.
-type repo struct {
-	name        string
-	description string
-}
 const tokenPath = "token.json"
 
 var (
-	client       *github.Client
+	client       *githubv4.Client
 	app          *tview.Application
 	databaseConn *database.Gazers
 	view         = View{}
@@ -38,7 +33,7 @@ func main() {
 	token, err := retrieveAccessToken()
 	src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Token})
 	httpClient := oauth2.NewClient(context.Background(), src)
-	client = github.NewClient(httpClient)
+	client = githubv4.NewClient(httpClient)
 	app = tview.NewApplication()
 	db, err := database.Setup()
 	if err != nil {

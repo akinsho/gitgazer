@@ -1,12 +1,12 @@
 package main
 
 import (
+	"akinsho/gogazer/github"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/google/go-github/v43/github"
 	"github.com/rivo/tview"
 )
 
@@ -34,7 +34,7 @@ func openErrorModal(err error) {
 
 func refreshRepositoryList() {
 	go func() {
-		repositories, err := fetchRepositories()
+		repositories, err := github.FetchRepositories(client)
 		if err != nil {
 			openErrorModal(err)
 			return
@@ -45,20 +45,20 @@ func refreshRepositoryList() {
 		}
 
 		for _, repo := range repositories[:20] {
-			name := repo.GetName()
-			description := repo.GetDescription()
+			name := repo.Name
+			description := repo.Description
 			if name != "" {
 				showDesc := false
 				if len(description) > 0 {
 					showDesc = true
 				}
-				view.repoList.AddItem(repo.GetName(), description, 0, nil).
+				view.repoList.AddItem(repo.Name, description, 0, nil).
 					ShowSecondaryText(showDesc)
 			}
 			view.repoList.SetSelectedBackgroundColor(tcell.Color101)
 		}
 		view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-			err := saveSelectedRepository(i, s1, s2, r)
+			_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
 			if err != nil {
 				openErrorModal(err)
 				return
@@ -74,8 +74,8 @@ func refreshRepositoryList() {
 func renderLabels(labels []*github.Label) string {
 	var renderedLabels string
 	for _, label := range labels {
-		color := "#" + strings.ToUpper(label.GetColor())
-		name := strings.ToUpper(label.GetName())
+		color := "#" + strings.ToUpper(label.Color)
+		name := strings.ToUpper(label.Name)
 		renderedLabels += fmt.Sprintf(
 			"[%s]%s%s[%s]%s",
 			color,
@@ -89,26 +89,22 @@ func renderLabels(labels []*github.Label) string {
 }
 
 func refreshIssuesList(repo *github.Repository) {
-	issues, err := getRepositoryIssues(repo)
-	if err != nil {
-		openErrorModal(err)
-		return
-	}
 	view.issuesList.Clear()
+	issues := repo.Issues.Nodes
 	if len(issues) == 0 {
 		view.issuesList.AddItem("No issues found", "", 0, nil)
 	} else {
 		for _, issue := range issues {
-			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
-			title := truncateText(issue.GetTitle(), 50)
+			issueNumber := fmt.Sprintf("#%d", issue.Number)
+			title := truncateText(issue.Title, 50)
 			view.issuesList.AddItem(
 				fmt.Sprintf(
 					"%s %s [red](%s)",
 					issueNumber,
 					title,
-					strings.ToUpper(issue.GetState()),
+					strings.ToUpper(issue.State),
 				),
-				issue.GetUser().GetLogin()+"  "+renderLabels(issue.Labels),
+				issue.Author.Login+"  "+renderLabels(issue.Labels.Nodes),
 				0,
 				nil,
 			)
@@ -133,13 +129,13 @@ func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
 func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
 	var timer *time.Timer
 	return func(index int, mainText, secondaryText string, shortcut rune) {
-		repo := getRepositoryByIndex(index)
+		repo := github.GetRepositoryByIndex(index)
 		if repo == nil {
 			return
 		}
-		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazersCount())
-		issues := fmt.Sprintf("[red]issue count[white]: %d", repo.GetOpenIssuesCount())
-		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
+		title := fmt.Sprintf("%s      🌟%d", repo.Name, 0)
+		issues := fmt.Sprintf("[red]issue count[white]: %d", len(repo.Issues.Nodes))
+		text := fmt.Sprintf("%s\n%s\n%s", title, repo.Description, issues)
 		view.description.SetText(text)
 		if timer != nil {
 			timer.Stop()
