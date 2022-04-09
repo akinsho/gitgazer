@@ -1,7 +1,6 @@
 package main
 
 import (
-	"akinsho/gogazer/database"
 	"fmt"
 	"strings"
 	"time"
@@ -33,41 +32,41 @@ func openErrorModal(err error) {
 	})
 }
 
-func saveSelectedRepository(db database.Gazers, i int, s1, s2 string, r rune) {
-	_, err := db.Insert(getRepositoryByIndex(i))
-	if err != nil {
-		openErrorModal(err)
-		return
-	}
-}
-
-func refreshRepositoryList(user string, db *database.Gazers) {
-	repositories, err := fetchRepositories(user)
-	if err != nil {
-		openErrorModal(err)
-		return
-	}
-	view.repoList.Clear()
-	if len(repositories) == 0 {
-		view.repoList.AddItem("No repositories found", "", 0, nil)
-	}
-
-	for _, repo := range repositories[:20] {
-		name := repo.GetName()
-		description := repo.GetDescription()
-		if name != "" {
-			showDesc := false
-			if len(description) > 0 {
-				showDesc = true
-			}
-			view.repoList.AddItem(repo.GetName(), description, 0, nil).ShowSecondaryText(showDesc)
+func refreshRepositoryList() {
+	go func() {
+		repositories, err := fetchRepositories()
+		if err != nil {
+			openErrorModal(err)
+			return
 		}
-		view.repoList.SetSelectedBackgroundColor(tcell.Color101)
-	}
-	view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-		saveSelectedRepository(*db, i, s1, s2, r)
-	})
-	app.Draw()
+		view.repoList.Clear()
+		if len(repositories) == 0 {
+			view.repoList.AddItem("No repositories found", "", 0, nil)
+		}
+
+		for _, repo := range repositories[:20] {
+			name := repo.GetName()
+			description := repo.GetDescription()
+			if name != "" {
+				showDesc := false
+				if len(description) > 0 {
+					showDesc = true
+				}
+				view.repoList.AddItem(repo.GetName(), description, 0, nil).
+					ShowSecondaryText(showDesc)
+			}
+			view.repoList.SetSelectedBackgroundColor(tcell.Color101)
+		}
+		view.repoList.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
+			err := saveSelectedRepository(i, s1, s2, r)
+			if err != nil {
+				openErrorModal(err)
+				return
+			}
+
+		})
+		app.Draw()
+	}()
 }
 
 // renderLabels for an issue by pulling out the name and using ascii pill characters on either

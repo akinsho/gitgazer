@@ -11,7 +11,12 @@ var (
 	issuesByRepoID = make(map[int64][]*github.Issue)
 )
 
-func fetchRepositories(user string) ([]*github.Repository, error) {
+func saveSelectedRepository(i int, s1, s2 string, r rune) (err error) {
+	_, err = databaseConn.Insert(getRepositoryByIndex(i))
+	return err
+}
+
+func fetchRepositories() ([]*github.Repository, error) {
 	//  TODO: We need a way to invalidate previous fetched repositories
 	// and refetch but this is necessary for now to prevent DDOSing the API.
 	if len(repositories) > 0 {
