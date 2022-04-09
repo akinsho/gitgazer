@@ -73,15 +73,10 @@ func renderLabels(labels []*github.Label) string {
 	var renderedLabels string
 	for _, label := range labels {
 		color := "#" + strings.ToUpper(label.Color)
-		name := strings.ToUpper(label.Name)
-		renderedLabels += fmt.Sprintf(
-			"[%s]%s%s[%s]%s",
-			color,
-			leftPillSeparator,
-			name,
-			color,
-			rightPillSeparator,
-		)
+		left := fmt.Sprintf("[%s]%s", color, leftPillSeparator)
+		right := fmt.Sprintf("[%s]%s", color, rightPillSeparator)
+		name := fmt.Sprintf(`[%s]%s`, color, strings.ToUpper(label.Name))
+		renderedLabels += left + name + right
 	}
 	return renderedLabels
 }
@@ -93,16 +88,20 @@ func refreshIssuesList(repo *github.Repository) {
 		view.issuesList.AddItem("No issues found", "", 0, nil)
 	} else {
 		for _, issue := range issues {
-			issueNumber := fmt.Sprintf("#%d", issue.Number)
-			title := truncateText(issue.Title, 50)
+			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
+			title := truncateText(issue.GetTitle(), 50)
+			str := ""
+			if issue.Author != nil && issue.Author.Login != "" {
+				str += issue.Author.Login
+			}
 			view.issuesList.AddItem(
 				fmt.Sprintf(
 					"%s %s [red](%s)",
 					issueNumber,
 					title,
-					strings.ToUpper(issue.State),
+					strings.ToUpper(issue.GetState()),
 				),
-				issue.Author.Login+"  "+renderLabels(issue.Labels.Nodes),
+				str+"  "+renderLabels(issue.Labels.Nodes),
 				0,
 				nil,
 			)
@@ -131,9 +130,9 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 		if repo == nil {
 			return
 		}
-		title := fmt.Sprintf("%s      🌟%d", repo.Name, 0)
+		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazerCount())
 		issues := fmt.Sprintf("[red]issue count[white]: %d", len(repo.Issues.Nodes))
-		text := fmt.Sprintf("%s\n%s\n%s", title, repo.Description, issues)
+		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
 		view.description.SetText(text)
 		if timer != nil {
 			timer.Stop()
