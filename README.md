@@ -6,7 +6,8 @@ You can see the most recent issues as well as the issues you've tagged/tracked.
 
 ## Goals
 
-- [ ] Decide on main layout for the application
+- [x] Decide on main layout for the application
+- [x] Handle authentication
 - [ ] list repositories you've starred (paginated)
 - [ ] Select a subset of repositories as your focused ones
 - [ ] Store this list locally so it can be retrieved later
