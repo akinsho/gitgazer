@@ -12,6 +12,7 @@ import (
 )
 
 type View struct {
+	layout      *tview.Flex
 	main        *tview.Flex
 	description *tview.TextView
 	repos       *tview.List
@@ -86,7 +87,7 @@ func openErrorModal(err error) {
 			SetText(err.Error()).
 			AddButtons([]string{"OK"}).
 			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				app.Stop()
+				app.SetRoot(view.layout, true)
 			})
 		app.SetRoot(modal, true)
 	})
@@ -219,13 +220,13 @@ func getLayout() *tview.Flex {
 		AddItem(view.description, 0, 1, false).
 		AddItem(view.issues, 0, 3, false)
 
-	flex := tview.NewFlex().
+	view.layout = tview.NewFlex().
 		AddItem(sidebar, 0, 1, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(title, 3, 0, false).
 			AddItem(view.main, 0, 3, false), 0, 3, false)
 
-	return flex
+	return view.layout
 }
 
 func getSidebar() *tview.Flex {
