@@ -21,14 +21,12 @@ var (
 // 	          stargazerCount
 // 	          description
 // 	          name
-// 	          issues(first: 20) {
+// 	          issues(first: 20, orderBy: {field: UPDATED_AT, direction: DESC }) {
 // 	            nodes {
 // 	              state
 // 	              closed
 // 	              title
-// 	            }
-// 	          }
-// 	        }
+//  	     }
 // 	      }
 // 	    }
 //   }
@@ -56,6 +54,10 @@ func FetchRepositories(client *githubv4.Client) ([]*Repository, error) {
 			"labelCount": githubv4.Int(20),
 			"issueCount": githubv4.Int(20),
 			"repoCount":  githubv4.Int(20),
+			"issuesOrderBy": githubv4.IssueOrder{
+				Direction: githubv4.OrderDirectionDesc,
+				Field:     githubv4.IssueOrderFieldUpdatedAt,
+			},
 		},
 	)
 	if err != nil {

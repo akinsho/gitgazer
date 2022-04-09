@@ -27,7 +27,7 @@ type Repository struct {
 	Name           string
 	Issues         struct {
 		Nodes []*Issue
-	} `graphql:"issues(first: $issueCount)"`
+	} `graphql:"issues(first: $issueCount, orderBy: $issuesOrderBy)"`
 }
 
 //--------------------------------------------------------------------------------------------------
