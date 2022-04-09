@@ -22,9 +22,19 @@ var (
 )
 
 func inputHandler(event *tcell.EventKey) *tcell.EventKey {
+	elements := []tview.Primitive{
+		view.issues,
+		view.repos,
+		view.main,
+		view.description,
+	}
 	switch event.Key() {
 	case tcell.KeyCtrlQ:
 		app.Stop()
+	case tcell.KeyTab:
+		cycleFocus(app, elements, false)
+	case tcell.KeyBacktab:
+		cycleFocus(app, elements, true)
 	}
 	return event
 }

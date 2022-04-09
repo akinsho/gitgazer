@@ -123,6 +123,27 @@ func vimInputHandler(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
+func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool) {
+	for i, el := range elements {
+		if !el.HasFocus() {
+			continue
+		}
+
+		if reverse {
+			i--
+			if i < 0 {
+				i = len(elements) - 1
+			}
+		} else {
+			i++
+			i = i % len(elements)
+		}
+
+		app.SetFocus(elements[i])
+		return
+	}
+}
+
 func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
 	var timer *time.Timer
 	return func(index int, mainText, secondaryText string, shortcut rune) {
