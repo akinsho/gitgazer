@@ -241,8 +241,14 @@ func getSidebar() *tview.Flex {
 		SetRegions(true).
 		SetWrap(false).
 		SetHighlightedFunc(func(added, removed, remaining []string) {
-			panels.SwitchToPage(added[0])
-			app.SetFocus(view.repos)
+			id := added[0]
+			panels.SwitchToPage(id)
+			num, err := strconv.ParseInt(id, 10, 0)
+			if err != nil {
+				return
+			}
+			e := entries[num]
+			app.SetFocus(e.component)
 		})
 
 	previousTab := func() {
