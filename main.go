@@ -17,6 +17,7 @@ type repo struct {
 	name        string
 	description string
 }
+const tokenPath = "token.json"
 
 var (
 	client       *github.Client
@@ -34,10 +35,7 @@ func inputHandler(event *tcell.EventKey) *tcell.EventKey {
 }
 
 func main() {
-	token, err := getOAuthToken()
-	if err != nil {
-		log.Panicln(err)
-	}
+	token, err := retrieveAccessToken()
 	src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Token})
 	httpClient := oauth2.NewClient(context.Background(), src)
 	client = github.NewClient(httpClient)
