@@ -21,7 +21,7 @@ type Label struct {
 }
 
 type Repository struct {
-	ID             int
+	ID             string
 	StargazerCount int
 	Description    string
 	Name           string
