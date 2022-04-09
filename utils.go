@@ -1,15 +1,23 @@
 package main
 
 import (
-	"strings"
 	"time"
+	"unicode/utf8"
 )
 
-func truncateText(s string, max int) string {
-	if max > len(s) {
-		return s
+func truncateText(str string, max int) string {
+	if len(str) <= 0 {
+		return ""
 	}
-	return s[:strings.LastIndex(s[:max], " ")] + "..."
+	if max >= len(str) {
+		return str
+	}
+
+	if utf8.RuneCountInString(str) < max {
+		return str
+	}
+
+	return string([]rune(str)[:max]) + "…"
 }
 
 func throttle(f func(), d time.Duration) func() {
