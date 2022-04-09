@@ -26,9 +26,9 @@ type Panel struct {
 }
 
 var (
-	leftPillSeparator  = "█"
-	rightPillSeparator = "█"
-	repoIcon           = ""
+	leftPillIcon  = "█"
+	rightPillIcon = "█"
+	repoIcon      = ""
 )
 
 //--------------------------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ func renderLabels(labels []*github.Label) string {
 	var renderedLabels string
 	for _, label := range labels {
 		color := "#" + strings.ToUpper(label.Color)
-		left := fmt.Sprintf("[%s]%s", color, leftPillSeparator)
-		right := fmt.Sprintf("[%s]%s", color, rightPillSeparator)
+		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
+		right := fmt.Sprintf("[%s]%s", color, rightPillIcon)
 		name := fmt.Sprintf(`[%s]%s`, color, strings.ToUpper(label.Name))
 		renderedLabels += left + name + right
 	}
