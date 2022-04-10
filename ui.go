@@ -341,7 +341,13 @@ func getLayout() *tview.Pages {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(view.main, 0, 3, false), 0, 3, false)
 
-	view.pages.AddPage("main", view.layout, true, true)
+	navAdvice := "Cycle through sections using TAB/SHIFT-TAB"
+	closeAdvice := "Quit using <C-Q> or <C-C>"
+	frame := tview.NewFrame(view.layout).
+		SetBorders(0, 0, 0, 0, 0, 0).
+		AddText(fmt.Sprintf("%s | %s", navAdvice, closeAdvice), false, tview.AlignLeft, tcell.ColorWhite)
+
+	view.pages.AddPage("main", frame, true, true)
 
 	return view.pages
 }
