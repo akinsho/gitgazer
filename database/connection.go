@@ -16,9 +16,10 @@ type Gazers struct {
 
 const create string = `
   CREATE TABLE IF NOT EXISTS gazed_repositories (
-  id INTEGER NOT NULL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT
+	id INTEGER NOT NULL PRIMARY KEY,
+	repo_id STRING NOT NULL UNIQUE,
+	name TEXT NOT NULL,
+	description TEXT
   );`
 
 var connection *Gazers
@@ -43,7 +44,7 @@ func Insert(repo *models.Repository) (int64, error) {
 		return 0, errors.New("could not save repository as it is missing!")
 	}
 	res, err := connection.db.Exec(
-		"INSERT INTO gazed_repositories (id, name, description) VALUES (?, ?, ?);",
+		"INSERT INTO gazed_repositories (repo_id, name, description) VALUES (?, ?, ?);",
 		repo.ID,
 		repo.Name,
 		repo.Description,
@@ -56,4 +57,29 @@ func Insert(repo *models.Repository) (int64, error) {
 		return 0, nil
 	}
 	return id, nil
+}
+
+// ListFavourites pulls the repositories out of the gazers table and returns them as a list
+func ListFavourites() ([]models.FavouriteRepository, error) {
+	rows, err := connection.db.Query("SELECT * FROM gazed_repositories;")
+	if err != nil {
+		return nil, err
+	}
+	repositories := []models.FavouriteRepository{}
+	for rows.Next() {
+		var id int64
+		var repoID string
+		var name string
+		var description string
+		if err := rows.Scan(&id, &name, &description); err != nil {
+			return nil, err
+		}
+		repositories = append(repositories, models.FavouriteRepository{
+			ID:          id,
+			RepoID:      repoID,
+			Name:        name,
+			Description: description,
+		})
+	}
+	return repositories, nil
 }
