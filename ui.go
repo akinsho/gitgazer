@@ -131,7 +131,7 @@ func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the view.favourites list.
 func refreshFavouritesList() {
-	// view.favourites.Clear()
+	view.favourites.Clear()
 	favourites, err := database.ListFavourites()
 	if err != nil {
 		openErrorModal(err)
@@ -270,6 +270,7 @@ func getLayout() *tview.Pages {
 				openErrorModal(err)
 				return
 			}
+			go refreshFavouritesList()
 		}).
 		SetHighlightFullLine(true).
 		SetSelectedBackgroundColor(tcell.ColorForestGreen).
