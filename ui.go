@@ -330,7 +330,7 @@ func getSidebar() *tview.Flex {
 
 	for index, panel := range entries {
 		panels.AddPage(strconv.Itoa(index), panel.component, true, index == 0)
-		fmt.Fprintf(view.sidebarTabs, `["%d"][darkcyan]%s[white][""]  `, index, panel.title)
+		fmt.Fprintf(view.sidebarTabs, `["%d"][darkcyan] %s [white][""]  `, index, panel.title)
 	}
 
 	sidebar.SetBorder(true).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
