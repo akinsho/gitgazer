@@ -5,7 +5,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/gdamore/tcell/v2"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/rivo/tview"
 	"github.com/shurcooL/githubv4"
@@ -20,24 +19,6 @@ var (
 	databaseConn *database.Gazers
 	view         = View{}
 )
-
-func inputHandler(event *tcell.EventKey) *tcell.EventKey {
-	elements := []tview.Primitive{
-		view.main,
-		view.issues,
-		view.description,
-		view.repos,
-	}
-	switch event.Key() {
-	case tcell.KeyCtrlQ:
-		app.Stop()
-	case tcell.KeyTab:
-		cycleFocus(app, elements, false)
-	case tcell.KeyBacktab:
-		cycleFocus(app, elements, true)
-	}
-	return event
-}
 
 func main() {
 	token, err := retrieveAccessToken()
@@ -54,7 +35,7 @@ func main() {
 	go refreshRepositoryList()
 	layout := getLayout()
 	layout.SetTitle("Go gazer")
-	app.SetInputCapture(inputHandler)
+	app.SetInputCapture(appInputHandler)
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		log.Panicln(err)
 	}

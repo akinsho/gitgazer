@@ -37,6 +37,24 @@ var (
 //  Input handlers
 //--------------------------------------------------------------------------------------------------
 
+func appInputHandler(event *tcell.EventKey) *tcell.EventKey {
+	elements := []tview.Primitive{
+		view.main,
+		view.issues,
+		view.description,
+		view.repos,
+	}
+	switch event.Key() {
+	case tcell.KeyCtrlQ:
+		app.Stop()
+	case tcell.KeyTab:
+		cycleFocus(app, elements, false)
+	case tcell.KeyBacktab:
+		cycleFocus(app, elements, true)
+	}
+	return event
+}
+
 func sidebarInputHandler(
 	event *tcell.EventKey,
 	nextTab func(),
