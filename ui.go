@@ -171,7 +171,7 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 			return
 		}
 		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazerCount())
-		issues := fmt.Sprintf("[red]issue count[white]: %d", len(repo.Issues.Nodes))
+		issues := fmt.Sprintf("[red]Issues[white]: %d", len(repo.Issues.Nodes))
 		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
 		view.description.SetText(text)
 		if timer != nil {
