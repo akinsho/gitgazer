@@ -8,9 +8,11 @@ You can see the most recent issues as well as the issues you've tagged/tracked.
 
 - [x] Decide on main layout for the application
 - [x] Handle authentication
-- [ ] list repositories you've starred (paginated)
-- [ ] Select a subset of repositories as your focused ones
-- [ ] Store this list locally so it can be retrieved later
+- [x] list repositories you've starred (paginated)
+- [x] Select a subset of repositories as your focused ones
+- [x] Store this list locally so it can be retrieved later
+- [ ] Create config file
+- [ ] Persist credentials at a configurable path
 - [ ] Track the star count for a repository by time window e.g. day, month, year
 - [ ] Visualise star count graphically
 - [ ] See issues you are watching and track updates since you last checked
