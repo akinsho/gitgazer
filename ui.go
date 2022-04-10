@@ -261,7 +261,7 @@ func getLayout() *tview.Pages {
 	sidebar := getSidebar()
 
 	view.repos.AddItem("Loading repos...", "", 0, nil)
-	view.issues.SetBorder(true)
+	view.issues.SetSelectedStyle(tcell.StyleDefault.Underline(true)).SetBorder(true)
 
 	view.repos.SetChangedFunc(updateRepoList()).
 		SetSelectedFunc(func(index int, name, secondary string, r rune) {
