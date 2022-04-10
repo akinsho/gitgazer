@@ -76,6 +76,22 @@ func GetRepositoryByIndex(index int) *models.Repository {
 	return nil
 }
 
+func GetFavouriteRepositoryByIndex(index int) *models.FavouriteRepository {
+	repos, err := ListFavouriteRepos()
+	if err != nil {
+		return nil
+	}
+	return &repos[index]
+}
+
+func ListFavouriteRepos() (repos []models.FavouriteRepository, err error) {
+	repos, err = database.ListFavourites()
+	if err != nil {
+		return
+	}
+	return
+}
+
 func FavouriteRepo(index int, main, secondary string) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
