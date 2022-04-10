@@ -59,6 +59,17 @@ func Insert(repo *models.Repository) (int64, error) {
 	return id, nil
 }
 
+func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
+	row := connection.db.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
+	repo := &models.FavouriteRepository{}
+	if err := row.Scan(&repo.ID, &repo.RepoID, &repo.Name, &repo.Description); err != nil {
+		return nil, err
+	} else if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return repo, nil
+}
+
 // ListFavourites pulls the repositories out of the gazers table and returns them as a list
 func ListFavourites() ([]models.FavouriteRepository, error) {
 	rows, err := connection.db.Query("SELECT * FROM gazed_repositories;")

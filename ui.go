@@ -33,6 +33,7 @@ var (
 	leftPillIcon  = "█"
 	rightPillIcon = "█"
 	repoIcon      = ""
+	heartIcon     = "♥"
 )
 
 //--------------------------------------------------------------------------------------------------
@@ -154,6 +155,31 @@ func refreshFavouritesList() {
 	app.Draw()
 }
 
+// isFavourited checks if the repository is a favourite
+// by seeing if the database contains a match by ID
+func isFavourited(repo *models.Repository) bool {
+	r, err := database.GetFavouriteByRepoID(repo.ID)
+	if err != nil {
+		return false
+	}
+	return r != nil
+}
+
+// addFavouriteIndicators loops through all repositories and if they have been previously
+// favourited, adds a heart icon to the end of the name.
+func addFavouriteIndicators() {
+	for i := 0; i < view.repos.GetItemCount(); i++ {
+		go addFavouriteIndicator(i)
+	}
+}
+
+func addFavouriteIndicator(i int) {
+	if isFavourited(github.GetRepositoryByIndex(i)) {
+		main, secondary := view.repos.GetItemText(i)
+		view.repos.SetItemText(i, fmt.Sprintf("%s [pink]%s", main, heartIcon), secondary)
+	}
+}
+
 func refreshRepositoryList() {
 	repositories, err := github.FetchRepositories(client)
 	if err != nil {
@@ -175,6 +201,7 @@ func refreshRepositoryList() {
 		view.repos.AddItem(main, secondary, 0, onSelect).
 			ShowSecondaryText(showSecondaryText)
 	}
+	addFavouriteIndicators()
 	app.Draw()
 	app.SetFocus(view.repos)
 }
