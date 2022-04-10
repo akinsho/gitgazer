@@ -297,6 +297,7 @@ func getLayout() *tview.Pages {
 				openErrorModal(err)
 				return
 			}
+			go addFavouriteIndicator(index)
 			go refreshFavouritesList()
 		}).
 		SetHighlightFullLine(true).
