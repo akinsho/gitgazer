@@ -12,6 +12,7 @@ import (
 )
 
 type View struct {
+	pages       *tview.Pages
 	layout      *tview.Flex
 	main        *tview.Flex
 	description *tview.TextView
@@ -82,15 +83,17 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 
 // openErrorModal opens a modal with the given error message
 func openErrorModal(err error) {
-	app.QueueUpdateDraw(func() {
-		modal := tview.NewModal().
-			SetText(err.Error()).
-			AddButtons([]string{"OK"}).
-			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				app.SetRoot(view.layout, true)
-			})
-		app.SetRoot(modal, true)
-	})
+	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(idx int, label string) {
+		view.pages.SwitchToPage("main")
+	}), true)
+}
+
+func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
+	modal := tview.NewModal().
+		SetText(err.Error()).
+		AddButtons([]string{"OK"}).
+		SetDoneFunc(onDone)
+	return modal
 }
 
 func refreshRepositoryList() {
@@ -199,7 +202,8 @@ func drawLabels(labels []*github.Label) string {
 	return renderedLabels
 }
 
-func getLayout() *tview.Flex {
+func getLayout() *tview.Pages {
+	view.pages = tview.NewPages()
 	view.repos = tview.NewList()
 	view.issues = tview.NewList()
 	view.description = tview.NewTextView()
@@ -237,7 +241,9 @@ func getLayout() *tview.Flex {
 			AddItem(title, 3, 0, false).
 			AddItem(view.main, 0, 3, false), 0, 3, false)
 
-	return view.layout
+	view.pages.AddPage("main", view.layout, true, true)
+
+	return view.pages
 }
 
 func getSidebar() *tview.Flex {
