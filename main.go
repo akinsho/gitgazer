@@ -30,11 +30,12 @@ func main() {
 		log.Panicln(err)
 	}
 
-	go refreshRepositoryList()
-	go refreshFavouritesList()
 	layout := getLayout()
 	layout.SetTitle("Go gazer")
 	app.SetInputCapture(appInputHandler)
+	// Only refresh once the application has been mounted
+	go refreshRepositoryList()
+	go refreshFavouritesList()
 	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
 		log.Panicln(err)
 	}
