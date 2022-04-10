@@ -71,7 +71,7 @@ func ListFavourites() ([]models.FavouriteRepository, error) {
 		var repoID string
 		var name string
 		var description string
-		if err := rows.Scan(&id, &name, &description); err != nil {
+		if err := rows.Scan(&id, &repoID, &name, &description); err != nil {
 			return nil, err
 		}
 		repositories = append(repositories, models.FavouriteRepository{
