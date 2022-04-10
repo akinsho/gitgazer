@@ -31,7 +31,6 @@ func main() {
 	}
 
 	layout := getLayout()
-	layout.SetTitle("Go gazer")
 	app.SetInputCapture(appInputHandler)
 	// Only refresh once the application has been mounted
 	go refreshRepositoryList()
