@@ -132,7 +132,9 @@ func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the view.favourites list.
 func refreshFavouritesList() {
-	view.favourites.Clear()
+	if view.favourites.GetItemCount() > 0 {
+		view.favourites.Clear()
+	}
 	favourites, err := database.ListFavourites()
 	if err != nil {
 		openErrorModal(err)
