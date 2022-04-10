@@ -62,6 +62,13 @@ func (r *Repository) GetStargazerCount() int {
 	return r.StargazerCount
 }
 
+func (r *Repository) GetIssueCount() int {
+	if r == nil {
+		return 0
+	}
+	return len(r.Issues.Nodes)
+}
+
 func (r *Repository) GetIssues() []*Issue {
 	if r == nil {
 		return []*Issue{}
