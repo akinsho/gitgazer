@@ -137,19 +137,25 @@ func refreshIssuesList(repo *github.Repository) {
 	} else {
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
-			title := truncateText(issue.GetTitle(), 50)
-			str := ""
+			title := truncateText(issue.GetTitle(), 80)
+			author := ""
 			if issue.Author != nil && issue.Author.Login != "" {
-				str += "@" + issue.Author.Login
+				author += "[::bu]@" + issue.Author.Login
+			}
+			issueColor := "green"
+			if issue.Closed {
+				issueColor = "red"
 			}
 			view.issues.AddItem(
 				fmt.Sprintf(
-					"%s %s [red]%s",
+					"[%s]%s[-:-:-] %s %s - %s",
+					issueColor,
+					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
 					issueNumber,
 					title,
-					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
+					author,
 				),
-				str+"  "+drawLabels(issue.Labels.Nodes),
+				drawLabels(issue.Labels.Nodes),
 				0,
 				nil,
 			)

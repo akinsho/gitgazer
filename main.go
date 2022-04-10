@@ -23,10 +23,10 @@ var (
 
 func inputHandler(event *tcell.EventKey) *tcell.EventKey {
 	elements := []tview.Primitive{
-		view.issues,
-		view.repos,
 		view.main,
+		view.issues,
 		view.description,
+		view.repos,
 	}
 	switch event.Key() {
 	case tcell.KeyCtrlQ:
