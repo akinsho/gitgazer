@@ -276,13 +276,7 @@ func getLayout() *tview.Pages {
 		SetMainTextColor(tcell.ColorForestGreen).
 		SetMainTextStyle(tcell.StyleDefault.Bold(true)).SetSecondaryTextColor(tcell.ColorDarkGray)
 
-	title := tview.NewTextView()
-	title.
-		SetTextAlign(tview.AlignCenter).
-		SetText("Go gazer")
-
 	view.description.SetDynamicColors(true).SetBorder(true)
-	title.SetBorder(true)
 
 	view.main.SetDirection(tview.FlexRow)
 	view.main.
@@ -292,7 +286,6 @@ func getLayout() *tview.Pages {
 	view.layout = tview.NewFlex().
 		AddItem(sidebar, 0, 1, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(title, 3, 0, false).
 			AddItem(view.main, 0, 3, false), 0, 3, false)
 
 	view.pages.AddPage("main", view.layout, true, true)
