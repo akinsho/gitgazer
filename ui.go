@@ -249,6 +249,13 @@ func refreshIssuesList(repo *models.Repository) {
 	app.Draw()
 }
 
+func setRepoDescription(repo *models.Repository) {
+	title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazerCount())
+	issues := fmt.Sprintf("[red]Issues[white]: %d", repo.GetIssueCount())
+	text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
+	view.description.SetText(text)
+}
+
 func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
 	var timer *time.Timer
 	return func(index int, mainText, secondaryText string, shortcut rune) {
@@ -256,10 +263,7 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 		if repo == nil {
 			return
 		}
-		title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazerCount())
-		issues := fmt.Sprintf("[red]Issues[white]: %d", len(repo.Issues.Nodes))
-		text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
-		view.description.SetText(text)
+		setRepoDescription(repo)
 		if timer != nil {
 			timer.Stop()
 			timer = nil
