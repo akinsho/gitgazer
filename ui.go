@@ -115,7 +115,6 @@ func refreshRepositoryList() {
 			view.repos.AddItem(repoIcon+" "+repo.Name, description, 0, nil).
 				ShowSecondaryText(showDesc)
 		}
-		view.repos.SetSelectedBackgroundColor(tcell.Color101)
 	}
 	view.repos.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
 		_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
@@ -214,6 +213,10 @@ func getLayout() *tview.Flex {
 
 	view.repos.SetChangedFunc(updateRepoList())
 	view.repos.SetHighlightFullLine(true)
+	view.repos.SetSelectedBackgroundColor(tcell.ColorForestGreen)
+	view.repos.SetMainTextColor(tcell.ColorForestGreen)
+	view.repos.SetMainTextStyle(tcell.StyleDefault.Bold(true))
+	view.repos.SetSecondaryTextColor(tcell.ColorDarkGray)
 
 	title := tview.NewTextView()
 	title.
