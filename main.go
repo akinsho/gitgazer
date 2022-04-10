@@ -31,6 +31,7 @@ func main() {
 	}
 
 	go refreshRepositoryList()
+	go refreshFavouritesList()
 	layout := getLayout()
 	layout.SetTitle("Go gazer")
 	app.SetInputCapture(appInputHandler)

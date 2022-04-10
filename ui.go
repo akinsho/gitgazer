@@ -1,6 +1,7 @@
 package main
 
 import (
+	"akinsho/gogazer/database"
 	"akinsho/gogazer/github"
 	"akinsho/gogazer/models"
 	"fmt"
@@ -115,6 +116,44 @@ func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
 	return modal
 }
 
+func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
+	name := repo.GetName()
+	description := repo.GetDescription()
+	showSecondaryText := false
+	if name != "" {
+		if len(description) > 0 {
+			showSecondaryText = true
+		}
+	}
+	return repoIcon + " " + name, description, showSecondaryText, nil
+}
+
+// refreshFavouritesList fetches all saved repositories from the database and
+// adds them to the view.favourites list.
+func refreshFavouritesList() {
+	// view.favourites.Clear()
+	favourites, err := database.ListFavourites()
+	if err != nil {
+		openErrorModal(err)
+		return
+	}
+	if len(favourites) == 0 {
+		view.favourites.AddItem("No favourites found", "", 0, nil)
+	}
+
+	repos := favourites
+	if len(repos) > 20 {
+		repos = favourites[:20]
+	}
+
+	for _, repo := range favourites {
+		main, secondary, showSecondaryText, onSelect := repositoryEntry(&repo)
+		view.favourites.AddItem(main, secondary, 0, onSelect).
+			ShowSecondaryText(showSecondaryText)
+	}
+	app.Draw()
+}
+
 func refreshRepositoryList() {
 	repositories, err := github.FetchRepositories(client)
 	if err != nil {
@@ -126,17 +165,15 @@ func refreshRepositoryList() {
 		view.repos.AddItem("No repositories found", "", 0, nil)
 	}
 
-	for _, repo := range repositories[:20] {
-		name := repo.Name
-		description := repo.Description
-		if name != "" {
-			showDesc := false
-			if len(description) > 0 {
-				showDesc = true
-			}
-			view.repos.AddItem(repoIcon+" "+repo.Name, description, 0, nil).
-				ShowSecondaryText(showDesc)
-		}
+	repos := repositories
+	if len(repos) > 20 {
+		repos = repositories[:20]
+	}
+
+	for _, repo := range repos {
+		main, secondary, showSecondaryText, onSelect := repositoryEntry(repo)
+		view.repos.AddItem(main, secondary, 0, onSelect).
+			ShowSecondaryText(showSecondaryText)
 	}
 	app.Draw()
 	app.SetFocus(view.repos)
