@@ -284,8 +284,16 @@ func getSidebar() *tview.Flex {
 		return sidebarInputHandler(event, nextTab, previousTab)
 	})
 
+	// view.sidebarTabs.SetBorder(true)
+	// view.sidebarTabs.SetBorderAttributes(tcell.AttrUnderline)
+
+	divider := tview.NewTextView()
+	_, _, width, _ := view.sidebarTabs.GetRect()
+	divider.SetText(strings.Repeat("—", width*2))
+
 	sidebar.SetDirection(tview.FlexRow).
 		AddItem(view.sidebarTabs, 1, 1, false).
+		AddItem(divider, 1, 0, false).
 		AddItem(panels, 0, 1, false)
 
 	sidebar.SetBorderPadding(0, 1, 1, 1)
