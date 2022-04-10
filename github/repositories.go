@@ -1,14 +1,16 @@
 package github
 
 import (
+	"akinsho/gogazer/database"
+	"akinsho/gogazer/models"
 	"context"
 
 	"github.com/shurcooL/githubv4"
 )
 
 var (
-	repositories   []*Repository
-	issuesByRepoID = make(map[int64][]*Issue)
+	repositories   []*models.Repository
+	issuesByRepoID = make(map[int64][]*models.Issue)
 )
 
 // Fetch the users starred repositories from github
@@ -32,7 +34,7 @@ var (
 //   }
 // }
 // ```
-func FetchRepositories(client *githubv4.Client) ([]*Repository, error) {
+func FetchRepositories(client *githubv4.Client) ([]*models.Repository, error) {
 	//  TODO: We need a way to invalidate previous fetched repositories
 	// and refetch but this is necessary for now to prevent DDOSing the API.
 	if len(repositories) > 0 {
@@ -42,7 +44,7 @@ func FetchRepositories(client *githubv4.Client) ([]*Repository, error) {
 	var starredRepositoriesQuery struct {
 		Viewer struct {
 			StarredRepositories struct {
-				Nodes []*Repository `graphql:"nodes"`
+				Nodes []*models.Repository `graphql:"nodes"`
 			} `graphql:"starredRepositories(first: $repoCount, orderBy: {field: STARRED_AT, direction: DESC})"`
 		}
 	}
@@ -67,9 +69,21 @@ func FetchRepositories(client *githubv4.Client) ([]*Repository, error) {
 	return repositories, nil
 }
 
-func GetRepositoryByIndex(index int) *Repository {
+func GetRepositoryByIndex(index int) *models.Repository {
 	if len(repositories) > 0 {
 		return repositories[index]
+	}
+	return nil
+}
+
+func FavouriteRepo(index int, main, secondary string) (err error) {
+	repo := GetRepositoryByIndex(index)
+	if repo == nil {
+		return
+	}
+	_, err = database.Insert(repo)
+	if err != nil {
+		return err
 	}
 	return nil
 }

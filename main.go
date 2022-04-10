@@ -14,10 +14,9 @@ import (
 const tokenPath = "token.json"
 
 var (
-	client       *githubv4.Client
-	app          *tview.Application
-	databaseConn *database.Gazers
-	view         = View{}
+	client *githubv4.Client
+	app    *tview.Application
+	view   = View{}
 )
 
 func main() {
@@ -26,11 +25,10 @@ func main() {
 	httpClient := oauth2.NewClient(context.Background(), src)
 	client = githubv4.NewClient(httpClient)
 	app = tview.NewApplication()
-	db, err := database.Setup()
+	err = database.Setup()
 	if err != nil {
 		log.Panicln(err)
 	}
-	databaseConn = db
 
 	go refreshRepositoryList()
 	layout := getLayout()

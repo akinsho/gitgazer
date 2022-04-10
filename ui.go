@@ -2,6 +2,7 @@ package main
 
 import (
 	"akinsho/gogazer/github"
+	"akinsho/gogazer/models"
 	"fmt"
 	"strconv"
 	"strings"
@@ -137,19 +138,11 @@ func refreshRepositoryList() {
 				ShowSecondaryText(showDesc)
 		}
 	}
-	view.repos.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-		_, err := databaseConn.Insert(github.GetRepositoryByIndex(i))
-		if err != nil {
-			openErrorModal(err)
-			return
-		}
-
-	})
 	app.Draw()
 	app.SetFocus(view.repos)
 }
 
-func refreshIssuesList(repo *github.Repository) {
+func refreshIssuesList(repo *models.Repository) {
 	view.issues.Clear()
 	issues := repo.Issues.Nodes
 	if len(issues) == 0 {
@@ -208,7 +201,7 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 // drawLabels for an issue by pulling out the name and using ascii pill characters on either
 // side of the name
 // @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
-func drawLabels(labels []*github.Label) string {
+func drawLabels(labels []*models.Label) string {
 	var renderedLabels string
 	for _, label := range labels {
 		color := "#" + strings.ToUpper(label.Color)
@@ -233,12 +226,18 @@ func getLayout() *tview.Pages {
 	view.repos.AddItem("Loading repos...", "", 0, nil)
 	view.issues.SetBorder(true)
 
-	view.repos.SetChangedFunc(updateRepoList())
-	view.repos.SetHighlightFullLine(true)
-	view.repos.SetSelectedBackgroundColor(tcell.ColorForestGreen)
-	view.repos.SetMainTextColor(tcell.ColorForestGreen)
-	view.repos.SetMainTextStyle(tcell.StyleDefault.Bold(true))
-	view.repos.SetSecondaryTextColor(tcell.ColorDarkGray)
+	view.repos.SetChangedFunc(updateRepoList()).
+		SetSelectedFunc(func(index int, name, secondary string, r rune) {
+			err := github.FavouriteRepo(index, name, secondary)
+			if err != nil {
+				openErrorModal(err)
+				return
+			}
+		}).
+		SetHighlightFullLine(true).
+		SetSelectedBackgroundColor(tcell.ColorForestGreen).
+		SetMainTextColor(tcell.ColorForestGreen).
+		SetMainTextStyle(tcell.StyleDefault.Bold(true)).SetSecondaryTextColor(tcell.ColorDarkGray)
 
 	title := tview.NewTextView()
 	title.

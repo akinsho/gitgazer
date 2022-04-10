@@ -1,7 +1,7 @@
 package database
 
 import (
-	"akinsho/gogazer/github"
+	"akinsho/gogazer/models"
 	"database/sql"
 	"errors"
 
@@ -21,25 +21,28 @@ const create string = `
   description TEXT
   );`
 
-func Setup() (*Gazers, error) {
+var connection *Gazers
+
+func Setup() error {
 	db, err := sql.Open("sqlite3", file)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if _, err := db.Exec(create); err != nil {
-		return nil, err
+		return err
 	}
-	return &Gazers{
+	connection = &Gazers{
 		db: db,
-	}, nil
+	}
+	return nil
 }
 
 // Insert a new repository into the database.
-func (g *Gazers) Insert(repo *github.Repository) (int64, error) {
+func Insert(repo *models.Repository) (int64, error) {
 	if repo == nil {
 		return 0, errors.New("could not save repository as it is missing!")
 	}
-	res, err := g.db.Exec(
+	res, err := connection.db.Exec(
 		"INSERT INTO gazed_repositories (id, name, description) VALUES (?, ?, ?);",
 		repo.ID,
 		repo.Name,

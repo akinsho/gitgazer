@@ -1,4 +1,4 @@
-package github
+package models
 
 type Author struct {
 	Login string
