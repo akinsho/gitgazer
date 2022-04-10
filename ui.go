@@ -178,7 +178,7 @@ func addFavouriteIndicators() {
 func addFavouriteIndicator(i int) {
 	if isFavourited(github.GetRepositoryByIndex(i)) {
 		main, secondary := view.repos.GetItemText(i)
-		view.repos.SetItemText(i, fmt.Sprintf("%s [pink]%s", main, heartIcon), secondary)
+		view.repos.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
 }
 
