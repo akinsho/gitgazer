@@ -135,7 +135,7 @@ func refreshFavouritesList() {
 	if view.favourites.GetItemCount() > 0 {
 		view.favourites.Clear()
 	}
-	favourites, err := database.ListFavourites()
+	favourites, err := github.ListSavedFavourites()
 	if err != nil {
 		openErrorModal(err)
 		return
@@ -189,7 +189,7 @@ func removeFavouriteIndicator(i int, repo *models.Repository) {
 }
 
 func refreshRepositoryList() {
-	repositories, err := github.FetchRepositories(client)
+	repositories, err := github.ListStarredRepositories(client)
 	if err != nil {
 		openErrorModal(err)
 		return

@@ -34,7 +34,7 @@ var (
 //   }
 // }
 // ```
-func FetchRepositories(client *githubv4.Client) ([]*models.Repository, error) {
+func ListStarredRepositories(client *githubv4.Client) ([]*models.Repository, error) {
 	//  TODO: We need a way to invalidate previous fetched repositories
 	// and refetch but this is necessary for now to prevent DDOSing the API.
 	if len(repositories) > 0 {
@@ -77,14 +77,14 @@ func GetRepositoryByIndex(index int) *models.Repository {
 }
 
 func GetFavouriteRepositoryByIndex(index int) *models.FavouriteRepository {
-	repos, err := ListFavouriteRepos()
+	repos, err := ListSavedFavourites()
 	if err != nil {
 		return nil
 	}
 	return &repos[index]
 }
 
-func ListFavouriteRepos() (repos []models.FavouriteRepository, err error) {
+func ListSavedFavourites() (repos []models.FavouriteRepository, err error) {
 	repos, err = database.ListFavourites()
 	if err != nil {
 		return
