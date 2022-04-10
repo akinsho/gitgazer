@@ -87,3 +87,15 @@ func FavouriteRepo(index int, main, secondary string) (err error) {
 	}
 	return nil
 }
+
+func UnfavouriteRepo(index int) (err error) {
+	repo := GetRepositoryByIndex(index)
+	if repo == nil {
+		return
+	}
+	err = database.DeleteByRepoID(repo.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

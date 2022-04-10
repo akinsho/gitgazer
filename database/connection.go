@@ -59,6 +59,15 @@ func Insert(repo *models.Repository) (int64, error) {
 	return id, nil
 }
 
+// Delete removes a repository with the matching repo ID from the database.
+func DeleteByRepoID(id string) error {
+	_, err := connection.db.Exec("DELETE FROM gazed_repositories WHERE repo_id = ?;", id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
 	row := connection.db.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
 	repo := &models.FavouriteRepository{}

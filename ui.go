@@ -180,6 +180,12 @@ func addFavouriteIndicator(i int) {
 	}
 }
 
+func removeFavouriteIndicator(i int, repo *models.Repository) {
+	main, secondary := view.repos.GetItemText(i)
+	main, _, _, _ = repositoryEntry(repo)
+	view.repos.SetItemText(i, main, secondary)
+}
+
 func refreshRepositoryList() {
 	repositories, err := github.FetchRepositories(client)
 	if err != nil {
@@ -277,6 +283,26 @@ func drawLabels(labels []*models.Label) string {
 	return renderedLabels
 }
 
+func onRepoSelect(index int, name, secondary string, r rune) {
+	repo := github.GetRepositoryByIndex(index)
+	if !isFavourited(repo) {
+		err := github.FavouriteRepo(index, name, secondary)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go addFavouriteIndicator(index)
+	} else {
+		err := github.UnfavouriteRepo(index)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go removeFavouriteIndicator(index, repo)
+	}
+	go refreshFavouritesList()
+}
+
 func getLayout() *tview.Pages {
 	view.pages = tview.NewPages()
 	view.repos = tview.NewList()
@@ -291,15 +317,7 @@ func getLayout() *tview.Pages {
 	view.issues.SetSelectedStyle(tcell.StyleDefault.Underline(true)).SetBorder(true)
 
 	view.repos.SetChangedFunc(updateRepoList()).
-		SetSelectedFunc(func(index int, name, secondary string, r rune) {
-			err := github.FavouriteRepo(index, name, secondary)
-			if err != nil {
-				openErrorModal(err)
-				return
-			}
-			go addFavouriteIndicator(index)
-			go refreshFavouritesList()
-		}).
+		SetSelectedFunc(onRepoSelect).
 		SetHighlightFullLine(true).
 		SetSelectedBackgroundColor(tcell.ColorForestGreen).
 		SetMainTextColor(tcell.ColorForestGreen).
