@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"akinsho/gogazer/database"
 	"akinsho/gogazer/github"
 	"akinsho/gogazer/models"
 	"fmt"
@@ -19,7 +18,7 @@ type Layout struct {
 	description *tview.TextView
 	repos       *RepoWidget
 	issues      *IssuesWidget
-	favourites  *tview.List
+	favourites  *FavouritesWidget
 }
 
 var (
@@ -133,44 +132,7 @@ func fetchStarredRepositories(client *githubv4.Client) {
 
 func fetchFavouriteRepositories() {
 	favourites, err := github.ListSavedFavourites()
-	refreshFavouritesList(favourites, err)
-}
-
-// refreshFavouritesList fetches all saved repositories from the database and
-// adds them to the View.favourites list.
-func refreshFavouritesList(favourites []models.FavouriteRepository, err error) {
-	if view.favourites.GetItemCount() > 0 {
-		view.favourites.Clear()
-	}
-	if err != nil {
-		openErrorModal(err)
-		return
-	}
-	if len(favourites) == 0 {
-		view.favourites.AddItem("No favourites found", "", 0, nil)
-	}
-
-	repos := favourites
-	if len(repos) > 20 {
-		repos = favourites[:20]
-	}
-
-	for _, repo := range favourites {
-		main, secondary, showSecondaryText, onSelect := repositoryEntry(&repo)
-		view.favourites.AddItem(main, secondary, 0, onSelect).
-			ShowSecondaryText(showSecondaryText)
-	}
-	app.Draw()
-}
-
-// isFavourited checks if the repository is a favourite
-// by seeing if the database contains a match by ID
-func isFavourited(repo *models.Repository) bool {
-	r, err := database.GetFavouriteByRepoID(repo.ID)
-	if err != nil {
-		return false
-	}
-	return r != nil
+	view.favourites.refreshFavouritesList(favourites, err)
 }
 
 func setRepoDescription(repo *models.Repository) {
@@ -178,14 +140,6 @@ func setRepoDescription(repo *models.Repository) {
 	issues := fmt.Sprintf("[red]Issues[white]: %d", repo.GetIssueCount())
 	text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
 	view.description.SetText(text)
-}
-
-func updateFavouriteChange(index int, mainText, secondaryText string, shortcut rune) {
-	repo := github.GetFavouriteRepositoryByIndex(index)
-	if repo == nil {
-		return
-	}
-	// setRepoDescription(repo)
 }
 
 // drawLabels for an issue by pulling out the name and using ascii pill characters on either
@@ -207,14 +161,12 @@ func layoutWidget() *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
-	favourites := tview.NewList()
 	layout := tview.NewFlex()
 
+	favourites := favouritesWidget()
 	repos := reposWidget()
 	issues := issuesWidget()
-	sidebar := sidebarWidget(repos.component, favourites)
-
-	favourites.SetChangedFunc(updateFavouriteChange)
+	sidebar := sidebarWidget(repos.component, favourites.component)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
