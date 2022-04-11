@@ -16,10 +16,20 @@ type RepoWidget struct {
 
 var heartIcon = "❤"
 
-func onRepoSelect(index int, name, secondary string, r rune) {
+// isFavourite checks if the repository is a favourite
+// by seeing if the database contains a match by ID
+func isFavourite(repo *models.Repository) bool {
+	r, err := github.GetFavouriteByRepositoryID(repo.ID)
+	if err != nil {
+		return false
+	}
+	return r != nil
+}
+
+func onRepoSelect(index int, mainText, secondaryText string, shortcut rune) {
 	repo := github.GetRepositoryByIndex(index)
-	if !isFavourited(repo) {
-		err := github.FavouriteRepo(index, name, secondary)
+	if !isFavourite(repo) {
+		err := github.FavouriteRepo(index, mainText, secondaryText)
 		if err != nil {
 			openErrorModal(err)
 			return
@@ -94,7 +104,7 @@ func (r *RepoWidget) addFavouriteIndicators() {
 }
 
 func (r *RepoWidget) addFavouriteIndicator(i int) {
-	if isFavourited(github.GetRepositoryByIndex(i)) {
+	if isFavourite(github.GetRepositoryByIndex(i)) {
 		main, secondary := r.component.GetItemText(i)
 		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
@@ -112,4 +122,3 @@ func reposWidget() *RepoWidget {
 		SetMainTextStyle(tcell.StyleDefault.Bold(true)).SetSecondaryTextColor(tcell.ColorDarkGray)
 	return &RepoWidget{component: repos}
 }
- 

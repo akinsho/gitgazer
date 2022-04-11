@@ -69,6 +69,10 @@ func ListStarredRepositories(client *githubv4.Client) ([]*models.Repository, err
 	return repositories, nil
 }
 
+func GetFavouriteByRepositoryID(id string) (favourite *models.FavouriteRepository, err error) {
+	return database.GetFavouriteByRepoID(id)
+}
+
 func GetRepositoryByIndex(index int) *models.Repository {
 	if len(repositories) > 0 {
 		return repositories[index]
