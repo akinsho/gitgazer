@@ -2,6 +2,7 @@ package main
 
 import (
 	"akinsho/gogazer/database"
+	"akinsho/gogazer/ui"
 	"context"
 	"log"
 
@@ -14,28 +15,22 @@ import (
 const tokenPath = "token.json"
 
 var (
-	client *githubv4.Client
-	app    *tview.Application
-	view   = View{}
+	app *tview.Application
 )
 
 func main() {
 	token, err := retrieveAccessToken()
 	src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Token})
 	httpClient := oauth2.NewClient(context.Background(), src)
-	client = githubv4.NewClient(httpClient)
+	client := githubv4.NewClient(httpClient)
 	app = tview.NewApplication()
 	err = database.Setup()
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	layout := getLayout()
-	app.SetInputCapture(appInputHandler)
 	// Only refresh once the application has been mounted
-	go refreshRepositoryList()
-	go refreshFavouritesList()
-	if err := app.SetRoot(layout, true).EnableMouse(true).Run(); err != nil {
+	if err := ui.Setup(client); err != nil {
 		log.Panicln(err)
 	}
 }

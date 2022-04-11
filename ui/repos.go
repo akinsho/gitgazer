@@ -1,0 +1,115 @@
+package ui
+
+import (
+	"akinsho/gogazer/github"
+	"akinsho/gogazer/models"
+	"fmt"
+	"time"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
+
+type RepoWidget struct {
+	component *tview.List
+}
+
+var heartIcon = "❤"
+
+func onRepoSelect(index int, name, secondary string, r rune) {
+	repo := github.GetRepositoryByIndex(index)
+	if !isFavourited(repo) {
+		err := github.FavouriteRepo(index, name, secondary)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go view.repos.addFavouriteIndicator(index)
+	} else {
+		err := github.UnfavouriteRepo(index)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go view.repos.removeFavouriteIndicator(index, repo)
+	}
+	go fetchFavouriteRepositories()
+}
+
+func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
+	var timer *time.Timer
+	return func(index int, mainText, secondaryText string, shortcut rune) {
+		repo := github.GetRepositoryByIndex(index)
+		if repo == nil {
+			return
+		}
+		setRepoDescription(repo)
+		if timer != nil {
+			timer.Stop()
+			timer = nil
+		}
+		timer = time.AfterFunc(time.Second, func() {
+			view.issues.refreshIssuesList(repo)
+		})
+	}
+}
+
+func (r *RepoWidget) removeFavouriteIndicator(i int, repo *models.Repository) {
+	main, secondary := r.component.GetItemText(i)
+	main, _, _, _ = repositoryEntry(repo)
+	r.component.SetItemText(i, main, secondary)
+}
+
+func (r *RepoWidget) refreshRepositoryList(repositories []*models.Repository, err error) {
+	if err != nil {
+		openErrorModal(err)
+		return
+	}
+	r.component.Clear()
+	if len(repositories) == 0 {
+		r.component.AddItem("No repositories found", "", 0, nil)
+	}
+
+	repos := repositories
+	if len(repos) > 20 {
+		repos = repositories[:20]
+	}
+
+	for _, repo := range repos {
+		main, secondary, showSecondaryText, onSelect := repositoryEntry(repo)
+		r.component.AddItem(main, secondary, 0, onSelect).
+			ShowSecondaryText(showSecondaryText)
+	}
+	view.repos.addFavouriteIndicators()
+	app.Draw()
+	app.SetFocus(r.component)
+}
+
+// addFavouriteIndicators loops through all repositories and if they have been previously
+// favourited, adds a heart icon to the end of the name.
+func (r *RepoWidget) addFavouriteIndicators() {
+	for i := 0; i < r.component.GetItemCount(); i++ {
+		go r.addFavouriteIndicator(i)
+	}
+}
+
+func (r *RepoWidget) addFavouriteIndicator(i int) {
+	if isFavourited(github.GetRepositoryByIndex(i)) {
+		main, secondary := r.component.GetItemText(i)
+		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
+	}
+}
+
+func reposWidget() *RepoWidget {
+	repos := tview.NewList()
+	repos.AddItem("Loading repos...", "", 0, nil)
+
+	repos.SetChangedFunc(updateRepoList()).
+		SetSelectedFunc(onRepoSelect).
+		SetHighlightFullLine(true).
+		SetSelectedBackgroundColor(tcell.ColorForestGreen).
+		SetMainTextColor(tcell.ColorForestGreen).
+		SetMainTextStyle(tcell.StyleDefault.Bold(true)).SetSecondaryTextColor(tcell.ColorDarkGray)
+	return &RepoWidget{component: repos}
+}
+ 
