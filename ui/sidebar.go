@@ -32,12 +32,12 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 		SetHighlightedFunc(func(added, removed, remaining []string) {
 			id := added[0]
 			panels.SwitchToPage(id)
-			// // num, err := strconv.ParseInt(id, 10, 0)
-			// if err != nil {
-			// 	return
-			// }
-			// e := entries[num]
-			// app.SetFocus(e.component)
+			num, err := strconv.ParseInt(id, 10, 0)
+			if err != nil {
+				return
+			}
+			e := entries[num]
+			app.SetFocus(e.component)
 		})
 
 	previousTab := func() {

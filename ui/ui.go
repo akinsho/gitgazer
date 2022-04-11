@@ -200,8 +200,9 @@ func layoutWidget() *Layout {
 }
 
 func Setup(client *githubv4.Client) error {
-	view = layoutWidget()
 	app = tview.NewApplication()
+	view = layoutWidget()
+
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)
 	})
