@@ -46,7 +46,9 @@ func onRepoSelect(index int, mainText, secondaryText string, shortcut rune) {
 	go fetchFavouriteRepositories()
 }
 
-func updateRepoList() func(index int, mainText, secondaryText string, shortcut rune) {
+// throttledRepoList updates the visible issue details in the issue widget when a user
+// has paused over a repository in the list for more than interval time
+func throttledRepoList(duration time.Duration) func(int, string, string, rune) {
 	var timer *time.Timer
 	return func(index int, mainText, secondaryText string, shortcut rune) {
 		repo := github.GetRepositoryByIndex(index)
@@ -58,11 +60,13 @@ func updateRepoList() func(index int, mainText, secondaryText string, shortcut r
 			timer.Stop()
 			timer = nil
 		}
-		timer = time.AfterFunc(time.Second, func() {
+		timer = time.AfterFunc(duration, func() {
 			view.issues.refreshIssuesList(repo)
 		})
 	}
 }
+
+var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
 func (r *RepoWidget) removeFavouriteIndicator(i int, repo *models.Repository) {
 	main, secondary := r.component.GetItemText(i)
@@ -114,7 +118,7 @@ func reposWidget() *RepoWidget {
 	repos := tview.NewList()
 	repos.AddItem("Loading repos...", "", 0, nil)
 
-	repos.SetChangedFunc(updateRepoList()).
+	repos.SetChangedFunc(updateRepoList).
 		SetSelectedFunc(onRepoSelect).
 		SetHighlightFullLine(true).
 		SetSelectedBackgroundColor(tcell.ColorForestGreen).
