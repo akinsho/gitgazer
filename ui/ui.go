@@ -136,12 +136,14 @@ func fetchFavouriteRepositories() {
 }
 
 func setRepoDescription(repo *models.Repository) {
-	title := fmt.Sprintf("[::bu]%s[::-]", repo.GetName())
-	stars := fmt.Sprintf("🌟%d", repo.GetStargazerCount())
+	view.description.SetTitle(repo.GetName()).
+		SetTitleAlign(tview.AlignLeft).
+		SetTitleColor(tcell.ColorBlue)
+	stars := fmt.Sprintf("[red]Stars[white]: 🌟%d", repo.GetStargazerCount())
 	issues := fmt.Sprintf("[red]Issues[white]: %d", repo.GetIssueCount())
-	url := fmt.Sprintf("[red]URL[white]: %s", repo.URL)
-	prs := fmt.Sprintf("[red]PRs[white]: %d", repo.GetPullRequestCount())
-	text := strings.Join([]string{title, stars, repo.GetDescription(), issues, prs, url}, "\n")
+	url := fmt.Sprintf("[red]URL[white]: [blue::bu]%s", repo.URL)
+	prs := fmt.Sprintf("[red]Open PRs[white]: %d", repo.GetPullRequestCount())
+	text := strings.Join([]string{repo.GetDescription(), "", stars, issues, prs, url}, "\n")
 	view.description.SetText(text)
 }
 
