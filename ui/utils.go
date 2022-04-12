@@ -5,7 +5,11 @@ import (
 	"unicode/utf8"
 )
 
-func truncateText(str string, max int) string {
+func truncateText(str string, max int, ellipsis bool) string {
+	suffix := ""
+	if ellipsis {
+		suffix = "…"
+	}
 	if len(str) <= 0 {
 		return ""
 	}
@@ -17,7 +21,7 @@ func truncateText(str string, max int) string {
 		return str
 	}
 
-	return string([]rune(str)[:max]) + "…"
+	return string([]rune(str)[:max]) + suffix
 }
 
 func throttle(f func(), d time.Duration) func() {

@@ -5,17 +5,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 type IssuesWidget struct {
-	component *tview.List
+	component *tview.TextView
 }
 
 func issuesWidget() *IssuesWidget {
-	issues := tview.NewList()
-	issues.SetSelectedStyle(tcell.StyleDefault.Underline(true)).SetBorder(true)
+	issues := tview.NewTextView()
+	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues")
 	return &IssuesWidget{component: issues}
 }
 
@@ -34,35 +33,52 @@ func drawLabels(labels []*models.Label) string {
 	return renderedLabels
 }
 
+// formatIssueBody splits the body of an issue at a certain character count into
+// a list of lines that are then rejoined by newlines
+func formatIssueBody(issue *models.Issue) string {
+	if issue.Body == "" {
+		return ""
+	}
+	body := strings.Split(issue.Body, "\n")
+	var formattedBody string
+	for _, line := range body {
+		formattedBody += truncateText(line, 80, false) + "\n"
+	}
+	return formattedBody
+}
+
 func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 	r.component.Clear()
 	issues := repo.Issues.Nodes
 	if len(issues) == 0 {
-		r.component.AddItem("No issues found", "", 0, nil)
+		r.component.SetText("No issues found").SetTextAlign(tview.AlignCenter)
 	} else {
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
-			title := truncateText(issue.GetTitle(), 80)
+			title := truncateText(issue.GetTitle(), 80, true)
 			author := ""
 			if issue.Author != nil && issue.Author.Login != "" {
-				author += "[::bu]@" + issue.Author.Login
+				author += "[::bu]@" + issue.Author.Login + "[::-]"
 			}
 			issueColor := "green"
 			if issue.Closed {
 				issueColor = "red"
 			}
-			r.component.AddItem(
-				fmt.Sprintf(
-					"[%s]%s[-:-:-] %s %s - %s",
-					issueColor,
-					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
-					issueNumber,
-					title,
-					author,
-				),
-				drawLabels(issue.Labels.Nodes),
-				0,
-				nil,
+			previous := r.component.GetText(false)
+			r.component.SetText(
+				strings.Join([]string{
+					previous,
+					fmt.Sprintf(
+						"[%s]%s[-:-:-] %s %s - %s",
+						issueColor,
+						tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
+						issueNumber,
+						title,
+						author,
+					),
+					formatIssueBody(issue),
+					drawLabels(issue.Labels.Nodes),
+				}, "\n"),
 			)
 		}
 	}

@@ -10,6 +10,7 @@ type Issue struct {
 	Title  string
 	Number int
 	Author *Author
+	Body   string
 	Labels struct {
 		Nodes []*Label
 	} `graphql:"labels(first: $labelCount)"`
