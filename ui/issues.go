@@ -64,10 +64,10 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 			}
 			body := getIssueBodyMarkdown(issue)
 			previous := r.component.GetText(false)
-			lines := strings.Join([]string{
+			list := []string{
 				previous,
 				fmt.Sprintf(
-					"[%s]%s[-:-:-] %s %s - %s",
+					"[%s]%s[-:-:bu] %s %s - %s",
 					issueColor,
 					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
 					issueNumber,
