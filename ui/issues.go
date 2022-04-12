@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"akinsho/gogazer/models"
+	"akinsho/gitgazer/models"
 	"fmt"
 	"strings"
 

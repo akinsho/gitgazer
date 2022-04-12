@@ -1,8 +1,8 @@
 package main
 
 import (
-	"akinsho/gogazer/database"
-	"akinsho/gogazer/ui"
+	"akinsho/gitgazer/database"
+	"akinsho/gitgazer/ui"
 	"context"
 	"log"
 

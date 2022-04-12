@@ -1,4 +1,6 @@
-gogazer
+gitgazer
 # SQLite databases
 *.db
 .env
+
+token.json

@@ -1,8 +1,8 @@
 package github
 
 import (
-	"akinsho/gogazer/database"
-	"akinsho/gogazer/models"
+	"akinsho/gitgazer/database"
+	"akinsho/gitgazer/models"
 	"context"
 
 	"github.com/shurcooL/githubv4"

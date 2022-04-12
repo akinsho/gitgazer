@@ -1,9 +1,8 @@
-### Go Gazer
-
+### Gitgazer
 
 <img width="1721" alt="Screen Shot 2022-04-12 at 17 06 46" src="https://user-images.githubusercontent.com/22454918/163006687-5fa2f6ef-3edc-4d28-be39-e2f8ce6cd057.png">
 
-Gogazer is a TUI application that allows you keep track of the repos you spy -> gaze upon the most.
+Gitgazer is a TUI application that allows you keep track of the repos you ~~spy~~ 👉 _gaze_ upon the most.
 You can see how the star count has changed over the course of a day or week or month (TBD).
 You can see the most recent issues as well as the issues you've tagged/tracked.
 

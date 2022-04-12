@@ -1,7 +1,7 @@
 package database
 
 import (
-	"akinsho/gogazer/models"
+	"akinsho/gitgazer/models"
 	"database/sql"
 	"errors"
 

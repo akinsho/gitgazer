@@ -1,4 +1,4 @@
-module akinsho/gogazer
+module akinsho/gitgazer
 
 go 1.18
 
