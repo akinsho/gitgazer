@@ -26,7 +26,7 @@ func isFavourite(repo *models.Repository) bool {
 	return r != nil
 }
 
-func onRepoSelect(index int, mainText, secondaryText string, shortcut rune) {
+func onRepoSelect(index int, mainText, secondaryText string, _ rune) {
 	repo := github.GetRepositoryByIndex(index)
 	if !isFavourite(repo) {
 		err := github.FavouriteRepo(index, mainText, secondaryText)
@@ -50,7 +50,7 @@ func onRepoSelect(index int, mainText, secondaryText string, shortcut rune) {
 // has paused over a repository in the list for more than interval time
 func throttledRepoList(duration time.Duration) func(int, string, string, rune) {
 	var timer *time.Timer
-	return func(index int, mainText, secondaryText string, shortcut rune) {
+	return func(index int, _, _ string, _ rune) {
 		repo := github.GetRepositoryByIndex(index)
 		if repo == nil {
 			return

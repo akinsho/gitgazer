@@ -11,7 +11,7 @@ type FavouritesWidget struct {
 	component *tview.List
 }
 
-func updateFavouriteChange(index int, mainText, secondaryText string, shortcut rune) {
+func updateFavouriteChange(index int, _, _ string, _ rune) {
 	repo := github.GetFavouriteRepositoryByIndex(index)
 	if repo == nil {
 		return
@@ -41,7 +41,7 @@ func (f *FavouritesWidget) refreshFavouritesList(
 		repos = favourites[:20]
 	}
 
-	for _, repo := range favourites {
+	for _, repo := range repos {
 		main, secondary, showSecondaryText, onSelect := repositoryEntry(&repo)
 		f.component.AddItem(main, secondary, 0, onSelect).
 			ShowSecondaryText(showSecondaryText)

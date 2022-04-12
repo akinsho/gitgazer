@@ -28,7 +28,7 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 		SetDynamicColors(true).
 		SetRegions(true).
 		SetWrap(false).
-		SetHighlightedFunc(func(added, removed, remaining []string) {
+		SetHighlightedFunc(func(added, _, _ []string) {
 			id := added[0]
 			panels.SwitchToPage(id)
 			num, err := strconv.ParseInt(id, 10, 0)

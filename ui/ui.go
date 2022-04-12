@@ -104,7 +104,7 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 
 // openErrorModal opens a modal with the given error message
 func openErrorModal(err error) {
-	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(idx int, label string) {
+	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(_ int, _ string) {
 		view.pages.SwitchToPage("main")
 	}), true)
 }
