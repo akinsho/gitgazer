@@ -23,15 +23,15 @@ func issuesWidget() *IssuesWidget {
 // side of the name
 // @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
 func drawLabels(labels []*models.Label) string {
-	var renderedLabels string
+	renderedLabels := []string{}
 	for _, label := range labels {
 		color := "#" + strings.ToUpper(label.Color)
 		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
 		right := fmt.Sprintf("[%s:-:]%s", color, rightPillIcon)
 		name := fmt.Sprintf(`[black:%s]%s`, color, strings.ToUpper(label.Name))
-		renderedLabels += left + name + right
+		renderedLabels = append(renderedLabels, left+name+right)
 	}
-	return renderedLabels
+	return strings.Join(renderedLabels, " ")
 }
 
 // scrollUp scroll the issues widget's text view up from the current position by 1 line
