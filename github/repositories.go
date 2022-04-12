@@ -29,6 +29,13 @@ var (
 // 	              closed
 // 	              title
 //  	     }
+//			pullRequests(first: 5, states: OPEN, orderBy: {field: UPDATED_AT, direction:DESC}) {
+// 			    edges {
+// 			       node {
+//					id
+//					title
+// 			    }
+// 			}
 // 	      }
 // 	    }
 //   }
@@ -57,6 +64,12 @@ func ListStarredRepositories(client *githubv4.Client) ([]*models.Repository, err
 			"issueCount": githubv4.Int(20),
 			"repoCount":  githubv4.Int(20),
 			"issuesOrderBy": githubv4.IssueOrder{
+				Direction: githubv4.OrderDirectionDesc,
+				Field:     githubv4.IssueOrderFieldUpdatedAt,
+			},
+			"prCount": githubv4.Int(5),
+			"prState": []githubv4.PullRequestState{githubv4.PullRequestStateOpen},
+			"pullRequestOrderBy": githubv4.IssueOrder{
 				Direction: githubv4.OrderDirectionDesc,
 				Field:     githubv4.IssueOrderFieldUpdatedAt,
 			},

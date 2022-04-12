@@ -20,12 +20,22 @@ type Label struct {
 	Color string
 }
 
+type PullRequest struct {
+	Title string
+	ID    string
+}
+
 type Repository struct {
 	ID             string
 	StargazerCount int
 	Description    string
 	Name           string
-	Issues         struct {
+	URL            string
+	PullRequests   struct {
+		TotalCount int
+		Nodes      []*PullRequest
+	} `graphql:"pullRequests(first: $prCount, states: $prState, orderBy: $pullRequestOrderBy)"`
+	Issues struct {
 		Nodes []*Issue
 	} `graphql:"issues(first: $issueCount, orderBy: $issuesOrderBy)"`
 }
@@ -60,6 +70,13 @@ func (r *Repository) GetStargazerCount() int {
 		return 0
 	}
 	return r.StargazerCount
+}
+
+func (r *Repository) GetPullRequestCount() int {
+	if r == nil {
+		return 0
+	}
+	return r.PullRequests.TotalCount
 }
 
 func (r *Repository) GetIssueCount() int {

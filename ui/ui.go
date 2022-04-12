@@ -4,6 +4,7 @@ import (
 	"akinsho/gogazer/github"
 	"akinsho/gogazer/models"
 	"fmt"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -135,9 +136,12 @@ func fetchFavouriteRepositories() {
 }
 
 func setRepoDescription(repo *models.Repository) {
-	title := fmt.Sprintf("%s      🌟%d", repo.GetName(), repo.GetStargazerCount())
+	title := fmt.Sprintf("[::bu]%s[::-]", repo.GetName())
+	stars := fmt.Sprintf("🌟%d", repo.GetStargazerCount())
 	issues := fmt.Sprintf("[red]Issues[white]: %d", repo.GetIssueCount())
-	text := fmt.Sprintf("%s\n%s\n%s", title, repo.GetDescription(), issues)
+	url := fmt.Sprintf("[red]URL[white]: %s", repo.URL)
+	prs := fmt.Sprintf("[red]PRs[white]: %d", repo.GetPullRequestCount())
+	text := strings.Join([]string{title, stars, repo.GetDescription(), issues, prs, url}, "\n")
 	view.description.SetText(text)
 }
 
