@@ -67,7 +67,7 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 	sidebar.SetBorderPadding(0, 0, 0, 0).
 		SetBorder(true).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			return vimMotionInputHandler(event, nextTab, previousTab)
+			return sidebarInputHandler(event, nextTab, previousTab)
 		})
 
 	sidebar.SetDirection(tview.FlexRow).

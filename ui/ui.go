@@ -54,7 +54,7 @@ func appInputHandler(layout *Layout, event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
-func vimMotionInputHandler(
+func sidebarInputHandler(
 	event *tcell.EventKey,
 	nextTab func(),
 	previousTab func(),
@@ -67,6 +67,10 @@ func vimMotionInputHandler(
 		return tcell.NewEventKey(tcell.KeyRight, 'l', tcell.ModNone)
 	} else if event.Rune() == 'h' {
 		return tcell.NewEventKey(tcell.KeyLeft, 'h', tcell.ModNone)
+	} else if event.Key() == tcell.KeyCtrlD {
+		view.issues.ScrollDown()
+	} else if event.Key() == tcell.KeyCtrlU {
+		view.issues.ScrollUp()
 	} else if event.Key() == tcell.KeyCtrlN {
 		nextTab()
 		return nil

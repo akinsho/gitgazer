@@ -34,6 +34,17 @@ func drawLabels(labels []*models.Label) string {
 	return renderedLabels
 }
 
+// scrollUp scroll the issues widget's text view up from the current position by 1 line
+func (r *IssuesWidget) ScrollUp() {
+	row, col := r.component.GetScrollOffset()
+	r.component.ScrollTo(row-1, col)
+}
+
+func (r *IssuesWidget) ScrollDown() {
+	row, col := r.component.GetScrollOffset()
+	r.component.ScrollTo(row+1, col)
+}
+
 func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 	r.component.Clear()
 	issues := repo.Issues.Nodes
