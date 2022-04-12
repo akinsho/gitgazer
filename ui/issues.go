@@ -14,7 +14,7 @@ type IssuesWidget struct {
 
 func issuesWidget() *IssuesWidget {
 	issues := tview.NewTextView()
-	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues")
+	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues").SetBorderPadding(0, 0, 1, 1)
 	return &IssuesWidget{component: issues}
 }
 
@@ -31,20 +31,6 @@ func drawLabels(labels []*models.Label) string {
 		renderedLabels += left + name + right
 	}
 	return renderedLabels
-}
-
-// formatIssueBody splits the body of an issue at a certain character count into
-// a list of lines that are then rejoined by newlines
-func formatIssueBody(issue *models.Issue) string {
-	if issue.Body == "" {
-		return ""
-	}
-	body := strings.Split(issue.Body, "\n")
-	var formattedBody string
-	for _, line := range body {
-		formattedBody += truncateText(line, 80, false) + "\n"
-	}
-	return formattedBody
 }
 
 func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
@@ -65,21 +51,20 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 				issueColor = "red"
 			}
 			previous := r.component.GetText(false)
-			r.component.SetText(
-				strings.Join([]string{
-					previous,
-					fmt.Sprintf(
-						"[%s]%s[-:-:-] %s %s - %s",
-						issueColor,
-						tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
-						issueNumber,
-						title,
-						author,
-					),
-					formatIssueBody(issue),
-					drawLabels(issue.Labels.Nodes),
-				}, "\n"),
-			)
+			lines := strings.Join([]string{
+				previous,
+				fmt.Sprintf(
+					"[%s]%s[-:-:-] %s %s - %s",
+					issueColor,
+					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
+					issueNumber,
+					title,
+					author,
+				),
+				issue.Body,
+				drawLabels(issue.Labels.Nodes),
+			}, "\n")
+			r.component.SetText(lines).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 		}
 	}
 	app.Draw()
