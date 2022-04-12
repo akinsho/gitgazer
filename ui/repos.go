@@ -123,6 +123,7 @@ func reposWidget() *RepoWidget {
 		SetHighlightFullLine(true).
 		SetSelectedBackgroundColor(tcell.ColorForestGreen).
 		SetMainTextColor(tcell.ColorForestGreen).
-		SetMainTextStyle(tcell.StyleDefault.Bold(true)).SetSecondaryTextColor(tcell.ColorDarkGray)
+		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
+		SetSecondaryTextColor(tcell.ColorDarkGray).SetBorderPadding(0, 0, 1, 1)
 	return &RepoWidget{component: repos}
 }

@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -37,8 +36,12 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 				return
 			}
 			e := entries[num]
+			sidebar.SetTitle(e.title).
+				SetTitleColor(tcell.ColorBlue).
+				SetTitleAlign(tview.AlignLeft)
 			app.SetFocus(e.component)
 		})
+	sidebarTabs.SetBorder(true)
 
 	previousTab := func() {
 		tab, _ := strconv.Atoi(sidebarTabs.GetHighlights()[0])
@@ -55,23 +58,21 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 
 	for index, panel := range entries {
 		panels.AddPage(strconv.Itoa(index), panel.component, true, index == 0)
-		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan] %s [white][""]  `, index, panel.title)
+		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, pad(panel.title, 1))
+		if index == 0 {
+			fmt.Fprintf(sidebarTabs, "|")
+		}
 	}
 
-	sidebar.SetBorder(true).SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		return vimMotionInputHandler(event, nextTab, previousTab)
-	})
-
-	divider := tview.NewTextView()
-	_, _, width, _ := sidebarTabs.GetRect()
-	divider.SetText(strings.Repeat("—", width*2))
+	sidebar.SetBorderPadding(0, 0, 0, 0).
+		SetBorder(true).
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			return vimMotionInputHandler(event, nextTab, previousTab)
+		})
 
 	sidebar.SetDirection(tview.FlexRow).
-		AddItem(sidebarTabs, 1, 1, false).
-		AddItem(divider, 1, 0, false).
-		AddItem(panels, 0, 1, false)
-
-	sidebar.SetBorderPadding(0, 1, 1, 1)
+		AddItem(panels, 0, 1, false).
+		AddItem(sidebarTabs, 3, 0, false)
 
 	sidebarTabs.Highlight("0")
 
