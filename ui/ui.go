@@ -190,6 +190,7 @@ func Setup(client *githubv4.Client) error {
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)
 	})
+	// Only refresh once the application has been mounted
 	go fetchStarredRepositories(client)
 	go fetchFavouriteRepositories()
 	if err := app.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
