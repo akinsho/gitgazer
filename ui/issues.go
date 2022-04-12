@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/glamour"
 	"github.com/rivo/tview"
 )
 
@@ -50,6 +51,7 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 			if issue.Closed {
 				issueColor = "red"
 			}
+			body := getIssueBodyMarkdown(issue)
 			previous := r.component.GetText(false)
 			lines := strings.Join([]string{
 				previous,
@@ -61,11 +63,21 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 					title,
 					author,
 				),
-				issue.Body,
+				body,
 				drawLabels(issue.Labels.Nodes),
 			}, "\n")
 			r.component.SetText(lines).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 		}
 	}
 	app.Draw()
+}
+
+func getIssueBodyMarkdown(issue *models.Issue) string {
+	body, err := glamour.Render(issue.Body, "dark")
+	if err != nil {
+		body = issue.Body
+	} else {
+		body = tview.TranslateANSI(body)
+	}
+	return body
 }

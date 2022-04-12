@@ -11,10 +11,22 @@ require (
 )
 
 require (
+	github.com/alecthomas/chroma v0.10.0 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/charmbracelet/glamour v0.5.0 // indirect
+	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
-	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a
-	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
+	github.com/gorilla/css v1.0.0 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
+	github.com/muesli/termenv v0.11.0 // indirect
+	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a // indirect
+	github.com/yuin/goldmark v1.4.11 // indirect
+	github.com/yuin/goldmark-emoji v1.0.1 // indirect
+	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 )
@@ -31,7 +43,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/sys v0.0.0-20220406163625-3f8b81556e12 // indirect
+	golang.org/x/sys v0.0.0-20220412071739-889880a91fd5 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
