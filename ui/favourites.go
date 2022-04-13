@@ -54,6 +54,7 @@ func (f *FavouritesWidget) Component() *tview.List {
 
 func favouritesWidget(ctx *gazerapp.Context) *FavouritesWidget {
 	favourites := tview.NewList()
+	favourites.SetBorderPadding(0, 0, 1, 1)
 	favourites.SetChangedFunc(updateFavouriteChange)
 	return &FavouritesWidget{favourites, ctx}
 }
