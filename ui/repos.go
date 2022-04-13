@@ -5,7 +5,6 @@ import (
 	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/github"
 	"fmt"
-	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -46,28 +45,6 @@ func onRepoSelect(ctx *gazerapp.Context, index int, mainText, secondaryText stri
 		go view.repos.removeFavouriteIndicator(index, repo)
 	}
 }
-
-// throttledRepoList updates the visible issue details in the issue widget when a user
-// has paused over a repository in the list for more than interval time
-func throttledRepoList(duration time.Duration) func(int, string, string, rune) {
-	var timer *time.Timer
-	return func(index int, _, _ string, _ rune) {
-		repo := github.GetRepositoryByIndex(index)
-		if repo == nil {
-			return
-		}
-		setRepoDescription(repo)
-		if timer != nil {
-			timer.Stop()
-			timer = nil
-		}
-		timer = time.AfterFunc(duration, func() {
-			view.issues.refreshIssuesList(repo)
-		})
-	}
-}
-
-var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
 func (r *RepoWidget) Component() *tview.List {
 	return r.component
@@ -120,11 +97,19 @@ func (r *RepoWidget) addFavouriteIndicator(i int) {
 	}
 }
 
+func updateStarredList(index int, _, _ string, _ rune) {
+	repo := github.GetRepositoryByIndex(index)
+	if repo == nil {
+		return
+	}
+	updateRepoList(repo)
+}
+
 func reposWidget(ctx *gazerapp.Context) *RepoWidget {
 	repos := tview.NewList()
 	repos.AddItem("Loading repos...", "", 0, nil)
 
-	repos.SetChangedFunc(updateRepoList).
+	repos.SetChangedFunc(updateStarredList).
 		SetSelectedFunc(func(i int, s1, s2 string, r rune) {
 			onRepoSelect(ctx, i, s1, s2, r)
 		}).

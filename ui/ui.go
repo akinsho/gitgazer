@@ -5,6 +5,7 @@ import (
 	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -127,6 +128,24 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	}
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
+
+// throttledRepoList updates the visible issue details in the issue widget when a user
+// has paused over a repository in the list for more than interval time
+func throttledRepoList(duration time.Duration) func(*domain.Repository) {
+	var timer *time.Timer
+	return func(repo *domain.Repository) {
+		setRepoDescription(repo)
+		if timer != nil {
+			timer.Stop()
+			timer = nil
+		}
+		timer = time.AfterFunc(duration, func() {
+			view.issues.refreshIssuesList(repo)
+		})
+	}
+}
+
+var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
 func setRepoDescription(repo *domain.Repository) {
 	view.description.SetTitle(repo.GetName()).
