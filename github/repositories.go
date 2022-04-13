@@ -2,7 +2,7 @@ package github
 
 import (
 	"akinsho/gitgazer/api"
-	"akinsho/gitgazer/database"
+	gazerapp "akinsho/gitgazer/app"
 	"akinsho/gitgazer/domain"
 
 	"golang.org/x/sync/errgroup"
@@ -70,8 +70,8 @@ func fetchFavouriteRepo(
 	return nil
 }
 
-func RetrieveFavouriteRepositories(client *api.Client) ([]*domain.Repository, error) {
-	saved, err := ListSavedFavourites()
+func RetrieveFavouriteRepositories(ctx *gazerapp.Context) ([]*domain.Repository, error) {
+	saved, err := ListSavedFavourites(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func RetrieveFavouriteRepositories(client *api.Client) ([]*domain.Repository, er
 	for _, repo := range saved {
 		repo := repo
 		g.Go(func() error {
-			return fetchFavouriteRepo(client, repo, results)
+			return fetchFavouriteRepo(ctx.Client, repo, results)
 		})
 	}
 	if g.Wait(); err != nil {
@@ -97,8 +97,11 @@ func RetrieveFavouriteRepositories(client *api.Client) ([]*domain.Repository, er
 	return repos, nil
 }
 
-func GetFavouriteByRepositoryID(id string) (favourite *domain.FavouriteRepository, err error) {
-	return database.GetFavouriteByRepoID(id)
+func GetFavouriteByRepositoryID(
+	ctx *gazerapp.Context,
+	id string,
+) (favourite *domain.FavouriteRepository, err error) {
+	return ctx.DB.GetFavouriteByRepoID(id)
 }
 
 func GetRepositoryByIndex(index int) *domain.Repository {
@@ -115,32 +118,33 @@ func GetFavouriteRepositoryByIndex(index int) *domain.Repository {
 	return favourites[index]
 }
 
-func ListSavedFavourites() (repos []*domain.FavouriteRepository, err error) {
-	repos, err = database.ListFavourites()
+func ListSavedFavourites(ctx *gazerapp.Context) (repos []*domain.FavouriteRepository, err error) {
+	repos, err = ctx.DB.ListFavourites()
 	if err != nil {
 		return
 	}
 	return
 }
 
-func FavouriteRepo(index int, main, secondary string) (err error) {
+func FavouriteRepo(ctx *gazerapp.Context, index int, main, secondary string) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
 		return
 	}
-	_, err = database.Insert(repo)
+	_, err = ctx.DB.Insert(repo)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func UnfavouriteRepo(index int) (err error) {
+func UnfavouriteRepo(ctx *gazerapp.Context, index int) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
 		return
 	}
-	err = database.DeleteByRepoID(repo.ID)
+	err = ctx.DB.DeleteByRepoID(repo.ID)
+	favourites = append(favourites[:index], favourites[index+1:]...)
 	if err != nil {
 		return err
 	}

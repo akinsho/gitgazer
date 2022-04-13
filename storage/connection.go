@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"akinsho/gitgazer/domain"
@@ -10,8 +10,8 @@ import (
 
 const file string = "gazers.db"
 
-type Gazers struct {
-	db *sql.DB
+type Database struct {
+	sqlDB *sql.DB
 }
 
 const create string = `
@@ -23,28 +23,23 @@ const create string = `
 	description TEXT
   );`
 
-var connection *Gazers
-
-func Setup() error {
+func Setup() (*Database, error) {
 	db, err := sql.Open("sqlite3", file)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := db.Exec(create); err != nil {
-		return err
+		return nil, err
 	}
-	connection = &Gazers{
-		db: db,
-	}
-	return nil
+	return &Database{db}, nil
 }
 
 // Insert a new repository into the database.
-func Insert(repo *domain.Repository) (int64, error) {
+func (db *Database) Insert(repo *domain.Repository) (int64, error) {
 	if repo == nil {
 		return 0, errors.New("could not save repository as it is missing!")
 	}
-	res, err := connection.db.Exec(
+	res, err := db.sqlDB.Exec(
 		"INSERT OR IGNORE INTO gazed_repositories (repo_id, name, owner, description) VALUES (?, ?, ?, ?);",
 		repo.ID,
 		repo.Name,
@@ -62,16 +57,16 @@ func Insert(repo *domain.Repository) (int64, error) {
 }
 
 // Delete removes a repository with the matching repo ID from the database.
-func DeleteByRepoID(id string) error {
-	_, err := connection.db.Exec("DELETE FROM gazed_repositories WHERE repo_id = ?;", id)
+func (db *Database) DeleteByRepoID(id string) error {
+	_, err := db.sqlDB.Exec("DELETE FROM gazed_repositories WHERE repo_id = ?;", id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetFavouriteByRepoID(id string) (*domain.FavouriteRepository, error) {
-	row := connection.db.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
+func (db *Database) GetFavouriteByRepoID(id string) (*domain.FavouriteRepository, error) {
+	row := db.sqlDB.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
 	repo := &domain.FavouriteRepository{}
 	if err := row.Scan(
 		&repo.ID,
@@ -88,8 +83,8 @@ func GetFavouriteByRepoID(id string) (*domain.FavouriteRepository, error) {
 }
 
 // ListFavourites pulls the repositories out of the gazers table and returns them as a list
-func ListFavourites() ([]*domain.FavouriteRepository, error) {
-	rows, err := connection.db.Query("SELECT * FROM gazed_repositories;")
+func (db *Database) ListFavourites() ([]*domain.FavouriteRepository, error) {
+	rows, err := db.sqlDB.Query("SELECT * FROM gazed_repositories;")
 	if err != nil {
 		return nil, err
 	}

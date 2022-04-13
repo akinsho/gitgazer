@@ -20,25 +20,25 @@ var heartIcon = "❤"
 
 // isFavourite checks if the repository is a favourite
 // by seeing if the database contains a match by ID
-func isFavourite(repo *domain.Repository) bool {
-	r, err := github.GetFavouriteByRepositoryID(repo.ID)
+func isFavourite(ctx *gazerapp.Context, repo *domain.Repository) bool {
+	r, err := github.GetFavouriteByRepositoryID(ctx, repo.ID)
 	if err != nil {
 		return false
 	}
 	return r != nil
 }
 
-func onRepoSelect(index int, mainText, secondaryText string, _ rune) {
+func onRepoSelect(ctx *gazerapp.Context, index int, mainText, secondaryText string, _ rune) {
 	repo := github.GetRepositoryByIndex(index)
-	if !isFavourite(repo) {
-		err := github.FavouriteRepo(index, mainText, secondaryText)
+	if !isFavourite(ctx, repo) {
+		err := github.FavouriteRepo(ctx, index, mainText, secondaryText)
 		if err != nil {
 			openErrorModal(err)
 			return
 		}
 		go view.repos.addFavouriteIndicator(index)
 	} else {
-		err := github.UnfavouriteRepo(index)
+		err := github.UnfavouriteRepo(ctx, index)
 		if err != nil {
 			openErrorModal(err)
 			return
@@ -114,7 +114,7 @@ func (r *RepoWidget) addFavouriteIndicators() {
 }
 
 func (r *RepoWidget) addFavouriteIndicator(i int) {
-	if isFavourite(github.GetRepositoryByIndex(i)) {
+	if isFavourite(r.context, github.GetRepositoryByIndex(i)) {
 		main, secondary := r.component.GetItemText(i)
 		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
@@ -125,7 +125,9 @@ func reposWidget(ctx *gazerapp.Context) *RepoWidget {
 	repos.AddItem("Loading repos...", "", 0, nil)
 
 	repos.SetChangedFunc(updateRepoList).
-		SetSelectedFunc(onRepoSelect).
+		SetSelectedFunc(func(i int, s1, s2 string, r rune) {
+			onRepoSelect(ctx, i, s1, s2, r)
+		}).
 		SetHighlightFullLine(true).
 		SetSelectedBackgroundColor(tcell.ColorForestGreen).
 		SetMainTextColor(tcell.ColorForestGreen).

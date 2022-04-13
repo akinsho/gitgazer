@@ -23,7 +23,7 @@ func updateFavouriteChange(index int, _, _ string, _ rune) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
 func (f *FavouritesWidget) Refresh() {
-	favourites, err := github.RetrieveFavouriteRepositories(f.context.Client)
+	favourites, err := github.RetrieveFavouriteRepositories(f.context)
 	if err != nil {
 		openErrorModal(err)
 		return

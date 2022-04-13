@@ -2,7 +2,7 @@ package main
 
 import (
 	gazerapp "akinsho/gitgazer/app"
-	"akinsho/gitgazer/database"
+	"akinsho/gitgazer/storage"
 	"akinsho/gitgazer/ui"
 	"log"
 
@@ -16,13 +16,14 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	err = database.Setup()
+	db, err := storage.Setup()
 	if err != nil {
 		log.Panicln(err)
 	}
 
 	context := &gazerapp.Context{
 		Client: client,
+		DB:     db,
 	}
 
 	if err := ui.Setup(context); err != nil {
