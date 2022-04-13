@@ -26,8 +26,14 @@ type PullRequest struct {
 	ID    string
 }
 
+type RepositoryOwner struct {
+	ID    string
+	Login string
+}
+
 type Repository struct {
 	ID             string
+	Owner          *RepositoryOwner
 	StargazerCount int
 	Description    string
 	Name           string

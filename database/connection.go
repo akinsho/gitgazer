@@ -19,6 +19,7 @@ const create string = `
 	id INTEGER NOT NULL PRIMARY KEY,
 	repo_id STRING NOT NULL UNIQUE,
 	name TEXT NOT NULL,
+	owner TEXT NOT NULL,
 	description TEXT
   );`
 
@@ -44,9 +45,10 @@ func Insert(repo *models.Repository) (int64, error) {
 		return 0, errors.New("could not save repository as it is missing!")
 	}
 	res, err := connection.db.Exec(
-		"INSERT OR IGNORE INTO gazed_repositories (repo_id, name, description) VALUES (?, ?, ?);",
+		"INSERT OR IGNORE INTO gazed_repositories (repo_id, name, owner, description) VALUES (?, ?, ?, ?);",
 		repo.ID,
 		repo.Name,
+		repo.Owner.Login,
 		repo.Description,
 	)
 	if err != nil {
@@ -71,7 +73,13 @@ func DeleteByRepoID(id string) error {
 func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
 	row := connection.db.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
 	repo := &models.FavouriteRepository{}
-	if err := row.Scan(&repo.ID, &repo.RepoID, &repo.Name, &repo.Description); err != nil {
+	if err := row.Scan(
+		&repo.ID,
+		&repo.RepoID,
+		&repo.Name,
+		&repo.Owner,
+		&repo.Description,
+	); err != nil {
 		return nil, err
 	} else if err == sql.ErrNoRows {
 		return nil, nil
@@ -80,26 +88,18 @@ func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
 }
 
 // ListFavourites pulls the repositories out of the gazers table and returns them as a list
-func ListFavourites() ([]models.FavouriteRepository, error) {
+func ListFavourites() ([]*models.FavouriteRepository, error) {
 	rows, err := connection.db.Query("SELECT * FROM gazed_repositories;")
 	if err != nil {
 		return nil, err
 	}
-	repositories := []models.FavouriteRepository{}
+	repositories := []*models.FavouriteRepository{}
 	for rows.Next() {
-		var id int64
-		var repoID string
-		var name string
-		var description string
-		if err := rows.Scan(&id, &repoID, &name, &description); err != nil {
+		repo := &models.FavouriteRepository{}
+		if err := rows.Scan(&repo.ID, &repo.RepoID, &repo.Name, &repo.Owner, &repo.Description); err != nil {
 			return nil, err
 		}
-		repositories = append(repositories, models.FavouriteRepository{
-			ID:          id,
-			RepoID:      repoID,
-			Name:        name,
-			Description: description,
-		})
+		repositories = append(repositories, repo)
 	}
 	return repositories, nil
 }

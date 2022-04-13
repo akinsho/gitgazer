@@ -3,6 +3,7 @@ package models
 type FavouriteRepository struct {
 	ID          int64
 	RepoID      string
+	Owner       string
 	Description string
 	Name        string
 }
