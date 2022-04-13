@@ -76,11 +76,23 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 				),
 				body,
 				drawLabels(issue.Labels.Nodes),
-			}, "\n")
-			r.component.SetText(lines).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
+				body,
+			}
+			lines := removeBlankLines(list)
+			r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 		}
 	}
 	app.Draw()
+}
+
+func removeBlankLines(lines []string) []string {
+	var filtered []string
+	for _, line := range lines {
+		if line != "" {
+			filtered = append(filtered, line)
+		}
+	}
+	return filtered
 }
 
 func getIssueBodyMarkdown(issue *models.Issue) string {
