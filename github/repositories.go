@@ -50,39 +50,12 @@ func ListStarredRepositories(client *api.Client) ([]*models.Repository, error) {
 	if len(repositories) > 0 {
 		return repositories, nil
 	}
-
-	var starredRepositoriesQuery struct {
-		Viewer struct {
-			StarredRepositories struct {
-				Nodes []*models.Repository `graphql:"nodes"`
-			} `graphql:"starredRepositories(first: $repoCount, orderBy: {field: STARRED_AT, direction: DESC})"`
-		}
-	}
-
-	err := client.Graphql.Query(
-		context.Background(),
-		&starredRepositoriesQuery,
-		map[string]interface{}{
-			"labelCount": githubv4.Int(20),
-			"issueCount": githubv4.Int(20),
-			"repoCount":  githubv4.Int(20),
-			"issuesOrderBy": githubv4.IssueOrder{
-				Direction: githubv4.OrderDirectionDesc,
-				Field:     githubv4.IssueOrderFieldUpdatedAt,
-			},
-			"prCount": githubv4.Int(5),
-			"prState": []githubv4.PullRequestState{githubv4.PullRequestStateOpen},
-			"pullRequestOrderBy": githubv4.IssueOrder{
-				Direction: githubv4.OrderDirectionDesc,
-				Field:     githubv4.IssueOrderFieldUpdatedAt,
-			},
-		},
-	)
+	repos, err := client.ListStarredRepositories()
 	if err != nil {
 		return nil, err
 	}
 	// FIXME: can we do better than relying on these globals
-	repositories = starredRepositoriesQuery.Viewer.StarredRepositories.Nodes
+	repositories = repos
 	return repositories, nil
 }
 
@@ -91,30 +64,11 @@ func fetchFavouriteRepo(
 	repo *models.FavouriteRepository,
 	results chan *models.Repository,
 ) error {
-	var repositoryQuery struct {
-		Repository models.Repository `graphql:"repository(name: $name, owner: $owner)"`
-	}
-	variables := map[string]interface{}{
-		"name":       githubv4.String(repo.Name),
-		"owner":      githubv4.String(repo.Owner),
-		"labelCount": githubv4.Int(20),
-		"issueCount": githubv4.Int(20),
-		"issuesOrderBy": githubv4.IssueOrder{
-			Direction: githubv4.OrderDirectionDesc,
-			Field:     githubv4.IssueOrderFieldUpdatedAt,
-		},
-		"prCount": githubv4.Int(5),
-		"prState": []githubv4.PullRequestState{githubv4.PullRequestStateOpen},
-		"pullRequestOrderBy": githubv4.IssueOrder{
-			Direction: githubv4.OrderDirectionDesc,
-			Field:     githubv4.IssueOrderFieldUpdatedAt,
-		},
-	}
-	err := client.Graphql.Query(context.Background(), &repositoryQuery, variables)
+	r, err := client.FetchRepositoryByName(repo.Name, repo.Owner)
 	if err != nil {
 		return err
 	}
-	results <- &repositoryQuery.Repository
+	results <- r
 	return nil
 }
 
