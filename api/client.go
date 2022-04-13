@@ -7,15 +7,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var Client *githubv4.Client
+type Client struct {
+	Graphql *githubv4.Client
+}
 
-func Setup() error {
+func Setup() (*Client, error) {
 	token, err := retrieveAccessToken()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	src := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token.Token})
 	httpClient := oauth2.NewClient(context.Background(), src)
-	Client = githubv4.NewClient(httpClient)
-	return nil
+	return &Client{githubv4.NewClient(httpClient)}, nil
 }

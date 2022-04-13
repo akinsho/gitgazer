@@ -18,7 +18,11 @@ type panel struct {
 	widget models.Widget
 }
 
-func sidebarWidget(repos *RepoWidget, favourites *FavouritesWidget) *SidebarWidget {
+func sidebarWidget(
+	ctx *models.GazeContext,
+	repos *RepoWidget,
+	favourites *FavouritesWidget,
+) *SidebarWidget {
 	entries := []panel{
 		{title: "Repositories", widget: repos},
 		{title: "Favourites", widget: favourites},

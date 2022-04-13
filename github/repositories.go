@@ -44,7 +44,7 @@ var (
 //   }
 // }
 // ```
-func ListStarredRepositories() ([]*models.Repository, error) {
+func ListStarredRepositories(client *api.Client) ([]*models.Repository, error) {
 	//  TODO: We need a way to invalidate previous fetched repositories
 	// and refetch but this is necessary for now to prevent DDOSing the API.
 	if len(repositories) > 0 {
@@ -59,7 +59,7 @@ func ListStarredRepositories() ([]*models.Repository, error) {
 		}
 	}
 
-	err := api.Client.Query(
+	err := client.Graphql.Query(
 		context.Background(),
 		&starredRepositoriesQuery,
 		map[string]interface{}{
@@ -86,7 +86,11 @@ func ListStarredRepositories() ([]*models.Repository, error) {
 	return repositories, nil
 }
 
-func fetchFavouriteRepo(repo *models.FavouriteRepository, results chan *models.Repository) error {
+func fetchFavouriteRepo(
+	client *api.Client,
+	repo *models.FavouriteRepository,
+	results chan *models.Repository,
+) error {
 	var repositoryQuery struct {
 		Repository models.Repository `graphql:"repository(name: $name, owner: $owner)"`
 	}
@@ -106,7 +110,7 @@ func fetchFavouriteRepo(repo *models.FavouriteRepository, results chan *models.R
 			Field:     githubv4.IssueOrderFieldUpdatedAt,
 		},
 	}
-	err := api.Client.Query(context.Background(), &repositoryQuery, variables)
+	err := client.Graphql.Query(context.Background(), &repositoryQuery, variables)
 	if err != nil {
 		return err
 	}
@@ -114,7 +118,7 @@ func fetchFavouriteRepo(repo *models.FavouriteRepository, results chan *models.R
 	return nil
 }
 
-func RetrieveFavouriteRepositories() ([]*models.Repository, error) {
+func RetrieveFavouriteRepositories(client *api.Client) ([]*models.Repository, error) {
 	saved, err := ListSavedFavourites()
 	if err != nil {
 		return nil, err
@@ -124,7 +128,7 @@ func RetrieveFavouriteRepositories() ([]*models.Repository, error) {
 	for _, repo := range saved {
 		repo := repo
 		g.Go(func() error {
-			return fetchFavouriteRepo(repo, results)
+			return fetchFavouriteRepo(client, repo, results)
 		})
 	}
 	if g.Wait(); err != nil {

@@ -11,12 +11,13 @@ import (
 
 type IssuesWidget struct {
 	component *tview.TextView
+	context   *models.GazeContext
 }
 
-func issuesWidget() *IssuesWidget {
+func issuesWidget(ctx *models.GazeContext) *IssuesWidget {
 	issues := tview.NewTextView()
 	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues").SetBorderPadding(0, 0, 1, 1)
-	return &IssuesWidget{component: issues}
+	return &IssuesWidget{component: issues, context: ctx}
 }
 
 // drawLabels for an issue by pulling out the name and using ascii pill characters on either

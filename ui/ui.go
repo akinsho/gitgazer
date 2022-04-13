@@ -139,16 +139,16 @@ func setRepoDescription(repo *models.Repository) {
 	view.description.SetText(text)
 }
 
-func layoutWidget() *Layout {
+func layoutWidget(context *models.GazeContext) *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
 	layout := tview.NewFlex()
 
-	favourites := favouritesWidget()
-	repos := reposWidget()
-	issues := issuesWidget()
-	sidebar := sidebarWidget(repos, favourites)
+	favourites := favouritesWidget(context)
+	repos := reposWidget(context)
+	issues := issuesWidget(context)
+	sidebar := sidebarWidget(context, repos, favourites)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
@@ -181,9 +181,9 @@ func layoutWidget() *Layout {
 	}
 }
 
-func Setup() error {
+func Setup(context *models.GazeContext) error {
 	app = tview.NewApplication()
-	view = layoutWidget()
+	view = layoutWidget(context)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)

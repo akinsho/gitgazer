@@ -2,6 +2,7 @@ package main
 
 import (
 	"akinsho/gitgazer/database"
+	"akinsho/gitgazer/models"
 	"akinsho/gitgazer/ui"
 	"log"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func main() {
-	err := api.Setup()
+	client, err := api.Setup()
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -20,7 +21,11 @@ func main() {
 		log.Panicln(err)
 	}
 
-	if err := ui.Setup(); err != nil {
+	context := &models.GazeContext{
+		Client: client,
+	}
+
+	if err := ui.Setup(context); err != nil {
 		log.Panicln(err)
 	}
 }

@@ -2,12 +2,14 @@ package ui
 
 import (
 	"akinsho/gitgazer/github"
+	"akinsho/gitgazer/models"
 
 	"github.com/rivo/tview"
 )
 
 type FavouritesWidget struct {
 	component *tview.List
+	context   *models.GazeContext
 }
 
 func updateFavouriteChange(index int, _, _ string, _ rune) {
@@ -21,7 +23,7 @@ func updateFavouriteChange(index int, _, _ string, _ rune) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
 func (f *FavouritesWidget) Refresh() {
-	favourites, err := github.RetrieveFavouriteRepositories()
+	favourites, err := github.RetrieveFavouriteRepositories(f.context.Client)
 	if err != nil {
 		openErrorModal(err)
 		return
@@ -50,8 +52,8 @@ func (f *FavouritesWidget) Component() *tview.List {
 	return f.component
 }
 
-func favouritesWidget() *FavouritesWidget {
+func favouritesWidget(ctx *models.GazeContext) *FavouritesWidget {
 	favourites := tview.NewList()
 	favourites.SetChangedFunc(updateFavouriteChange)
-	return &FavouritesWidget{favourites}
+	return &FavouritesWidget{favourites, ctx}
 }

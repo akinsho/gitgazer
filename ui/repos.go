@@ -12,6 +12,7 @@ import (
 
 type RepoWidget struct {
 	component *tview.List
+	context   *models.GazeContext
 }
 
 var heartIcon = "❤"
@@ -78,7 +79,7 @@ func (r *RepoWidget) removeFavouriteIndicator(i int, repo *models.Repository) {
 }
 
 func (r *RepoWidget) Refresh() {
-	repositories, err := github.ListStarredRepositories()
+	repositories, err := github.ListStarredRepositories(r.context.Client)
 	if err != nil {
 		openErrorModal(err)
 		return
@@ -118,7 +119,7 @@ func (r *RepoWidget) addFavouriteIndicator(i int) {
 	}
 }
 
-func reposWidget() *RepoWidget {
+func reposWidget(ctx *models.GazeContext) *RepoWidget {
 	repos := tview.NewList()
 	repos.AddItem("Loading repos...", "", 0, nil)
 
@@ -129,5 +130,5 @@ func reposWidget() *RepoWidget {
 		SetMainTextColor(tcell.ColorForestGreen).
 		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
 		SetSecondaryTextColor(tcell.ColorDarkGray).SetBorderPadding(0, 0, 1, 1)
-	return &RepoWidget{component: repos}
+	return &RepoWidget{component: repos, context: ctx}
 }
