@@ -6,6 +6,10 @@ Gitgazer is a TUI application that allows you keep track of the repos you ~~spy~
 You can see how the star count has changed over the course of a day or week or month (TBD).
 You can see the most recent issues as well as the issues you've tagged/tracked.
 
+## Status
+
+This project is currently in **early development**. It is not ready for daily use.
+
 ## Goals
 
 - [x] Decide on main layout for the application
