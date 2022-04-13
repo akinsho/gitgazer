@@ -1,4 +1,31 @@
-package models
+package domain
+
+type Repo interface {
+	GetDescription() string
+	GetName() string
+}
+
+type FavouriteRepository struct {
+	ID          int64
+	RepoID      string
+	Owner       string
+	Description string
+	Name        string
+}
+
+func (r *FavouriteRepository) GetDescription() string {
+	if r == nil {
+		return ""
+	}
+	return r.Description
+}
+
+func (r *FavouriteRepository) GetName() string {
+	if r == nil {
+		return ""
+	}
+	return r.Name
+}
 
 type Author struct {
 	Login string

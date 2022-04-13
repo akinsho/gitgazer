@@ -1,7 +1,8 @@
 package ui
 
 import (
-	"akinsho/gitgazer/models"
+	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
 
@@ -115,7 +116,7 @@ func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
 	return modal
 }
 
-func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
+func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	name := repo.GetName()
 	description := repo.GetDescription()
 	showSecondaryText := false
@@ -127,7 +128,7 @@ func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
 
-func setRepoDescription(repo *models.Repository) {
+func setRepoDescription(repo *domain.Repository) {
 	view.description.SetTitle(repo.GetName()).
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorBlue)
@@ -139,7 +140,7 @@ func setRepoDescription(repo *models.Repository) {
 	view.description.SetText(text)
 }
 
-func layoutWidget(context *models.GazeContext) *Layout {
+func layoutWidget(context *gazerapp.Context) *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
@@ -181,7 +182,7 @@ func layoutWidget(context *models.GazeContext) *Layout {
 	}
 }
 
-func Setup(context *models.GazeContext) error {
+func Setup(context *gazerapp.Context) error {
 	app = tview.NewApplication()
 	view = layoutWidget(context)
 

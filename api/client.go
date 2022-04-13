@@ -1,6 +1,7 @@
 package api
 
 import (
+	"akinsho/gitgazer/domain"
 	"context"
 
 	"github.com/shurcooL/githubv4"
@@ -21,11 +22,11 @@ func Setup() (*Client, error) {
 	return &Client{githubv4.NewClient(httpClient)}, nil
 }
 
-func (c *Client) ListStarredRepositories() ([]*Repository, error) {
+func (c *Client) ListStarredRepositories() ([]*domain.Repository, error) {
 	var starredRepositoriesQuery struct {
 		Viewer struct {
 			StarredRepositories struct {
-				Nodes []*Repository `graphql:"nodes"`
+				Nodes []*domain.Repository `graphql:"nodes"`
 			} `graphql:"starredRepositories(first: $repoCount, orderBy: {field: STARRED_AT, direction: DESC})"`
 		}
 	}
@@ -52,10 +53,10 @@ func (c *Client) ListStarredRepositories() ([]*Repository, error) {
 	return starredRepositoriesQuery.Viewer.StarredRepositories.Nodes, err
 }
 
-func (c *Client) FetchRepositoryByName(name, owner string) (*Repository, error) {
+func (c *Client) FetchRepositoryByName(name, owner string) (*domain.Repository, error) {
 
 	var repositoryQuery struct {
-		Repository Repository `graphql:"repository(name: $name, owner: $owner)"`
+		Repository domain.Repository `graphql:"repository(name: $name, owner: $owner)"`
 	}
 	variables := map[string]interface{}{
 		"name":       githubv4.String(name),

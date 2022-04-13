@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"akinsho/gitgazer/models"
+	gazerapp "akinsho/gitgazer/app"
 	"fmt"
 	"strconv"
 
@@ -19,7 +19,7 @@ type panel struct {
 }
 
 func sidebarWidget(
-	ctx *models.GazeContext,
+	ctx *gazerapp.Context,
 	repos *RepoWidget,
 	favourites *FavouritesWidget,
 ) *SidebarWidget {

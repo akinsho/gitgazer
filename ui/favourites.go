@@ -1,15 +1,15 @@
 package ui
 
 import (
+	gazerapp "akinsho/gitgazer/app"
 	"akinsho/gitgazer/github"
-	"akinsho/gitgazer/models"
 
 	"github.com/rivo/tview"
 )
 
 type FavouritesWidget struct {
 	component *tview.List
-	context   *models.GazeContext
+	context   *gazerapp.Context
 }
 
 func updateFavouriteChange(index int, _, _ string, _ rune) {
@@ -52,7 +52,7 @@ func (f *FavouritesWidget) Component() *tview.List {
 	return f.component
 }
 
-func favouritesWidget(ctx *models.GazeContext) *FavouritesWidget {
+func favouritesWidget(ctx *gazerapp.Context) *FavouritesWidget {
 	favourites := tview.NewList()
 	favourites.SetChangedFunc(updateFavouriteChange)
 	return &FavouritesWidget{favourites, ctx}

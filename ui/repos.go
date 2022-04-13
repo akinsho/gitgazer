@@ -1,8 +1,9 @@
 package ui
 
 import (
+	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/github"
-	"akinsho/gitgazer/models"
 	"fmt"
 	"time"
 
@@ -12,14 +13,14 @@ import (
 
 type RepoWidget struct {
 	component *tview.List
-	context   *models.GazeContext
+	context   *gazerapp.Context
 }
 
 var heartIcon = "❤"
 
 // isFavourite checks if the repository is a favourite
 // by seeing if the database contains a match by ID
-func isFavourite(repo *models.Repository) bool {
+func isFavourite(repo *domain.Repository) bool {
 	r, err := github.GetFavouriteByRepositoryID(repo.ID)
 	if err != nil {
 		return false
@@ -72,7 +73,7 @@ func (r *RepoWidget) Component() *tview.List {
 	return r.component
 }
 
-func (r *RepoWidget) removeFavouriteIndicator(i int, repo *models.Repository) {
+func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
 	main, secondary := r.component.GetItemText(i)
 	main, _, _, _ = repositoryEntry(repo)
 	r.component.SetItemText(i, main, secondary)
@@ -119,7 +120,7 @@ func (r *RepoWidget) addFavouriteIndicator(i int) {
 	}
 }
 
-func reposWidget(ctx *models.GazeContext) *RepoWidget {
+func reposWidget(ctx *gazerapp.Context) *RepoWidget {
 	repos := tview.NewList()
 	repos.AddItem("Loading repos...", "", 0, nil)
 

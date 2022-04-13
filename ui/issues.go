@@ -1,7 +1,8 @@
 package ui
 
 import (
-	"akinsho/gitgazer/models"
+	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
 
@@ -11,10 +12,10 @@ import (
 
 type IssuesWidget struct {
 	component *tview.TextView
-	context   *models.GazeContext
+	context   *gazerapp.Context
 }
 
-func issuesWidget(ctx *models.GazeContext) *IssuesWidget {
+func issuesWidget(ctx *gazerapp.Context) *IssuesWidget {
 	issues := tview.NewTextView()
 	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues").SetBorderPadding(0, 0, 1, 1)
 	return &IssuesWidget{component: issues, context: ctx}
@@ -23,7 +24,7 @@ func issuesWidget(ctx *models.GazeContext) *IssuesWidget {
 // drawLabels for an issue by pulling out the name and using ascii pill characters on either
 // side of the name
 // @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
-func drawLabels(labels []*models.Label) string {
+func drawLabels(labels []*domain.Label) string {
 	renderedLabels := []string{}
 	for _, label := range labels {
 		color := "#" + strings.ToUpper(label.Color)
@@ -46,7 +47,7 @@ func (r *IssuesWidget) ScrollDown() {
 	r.component.ScrollTo(row+1, col)
 }
 
-func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
+func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
 	r.component.Clear()
 	issues := repo.Issues.Nodes
 	if len(issues) == 0 {
@@ -99,7 +100,7 @@ func removeBlankLines(lines []string) []string {
 	return filtered
 }
 
-func getIssueBodyMarkdown(issue *models.Issue) string {
+func getIssueBodyMarkdown(issue *domain.Issue) string {
 	body, err := glamour.Render(issue.Body, "dark")
 	if err != nil {
 		body = issue.Body

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"akinsho/gitgazer/models"
+	"akinsho/gitgazer/domain"
 	"database/sql"
 	"errors"
 
@@ -40,7 +40,7 @@ func Setup() error {
 }
 
 // Insert a new repository into the database.
-func Insert(repo *models.Repository) (int64, error) {
+func Insert(repo *domain.Repository) (int64, error) {
 	if repo == nil {
 		return 0, errors.New("could not save repository as it is missing!")
 	}
@@ -70,9 +70,9 @@ func DeleteByRepoID(id string) error {
 	return nil
 }
 
-func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
+func GetFavouriteByRepoID(id string) (*domain.FavouriteRepository, error) {
 	row := connection.db.QueryRow("SELECT * FROM gazed_repositories WHERE repo_id = ?;", id)
-	repo := &models.FavouriteRepository{}
+	repo := &domain.FavouriteRepository{}
 	if err := row.Scan(
 		&repo.ID,
 		&repo.RepoID,
@@ -88,14 +88,14 @@ func GetFavouriteByRepoID(id string) (*models.FavouriteRepository, error) {
 }
 
 // ListFavourites pulls the repositories out of the gazers table and returns them as a list
-func ListFavourites() ([]*models.FavouriteRepository, error) {
+func ListFavourites() ([]*domain.FavouriteRepository, error) {
 	rows, err := connection.db.Query("SELECT * FROM gazed_repositories;")
 	if err != nil {
 		return nil, err
 	}
-	repositories := []*models.FavouriteRepository{}
+	repositories := []*domain.FavouriteRepository{}
 	for rows.Next() {
-		repo := &models.FavouriteRepository{}
+		repo := &domain.FavouriteRepository{}
 		if err := rows.Scan(&repo.ID, &repo.RepoID, &repo.Name, &repo.Owner, &repo.Description); err != nil {
 			return nil, err
 		}

@@ -1,7 +1,7 @@
-package models
+package gazerapp
 
 import "akinsho/gitgazer/api"
 
-type GazeContext struct {
+type Context struct {
 	Client *api.Client
 }
