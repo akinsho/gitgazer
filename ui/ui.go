@@ -1,14 +1,12 @@
 package ui
 
 import (
-	"akinsho/gitgazer/github"
 	"akinsho/gitgazer/models"
 	"fmt"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	"github.com/shurcooL/githubv4"
 )
 
 type Layout struct {
@@ -129,16 +127,6 @@ func repositoryEntry(repo models.Repo) (string, string, bool, func()) {
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
 
-func fetchStarredRepositories(client *githubv4.Client) {
-	repositories, err := github.ListStarredRepositories(client)
-	view.repos.refreshRepositoryList(repositories, err)
-}
-
-func fetchFavouriteRepositories() {
-	favourites, err := github.ListSavedFavourites()
-	view.favourites.refreshFavouritesList(favourites, err)
-}
-
 func setRepoDescription(repo *models.Repository) {
 	view.description.SetTitle(repo.GetName()).
 		SetTitleAlign(tview.AlignLeft).
@@ -160,7 +148,7 @@ func layoutWidget() *Layout {
 	favourites := favouritesWidget()
 	repos := reposWidget()
 	issues := issuesWidget()
-	sidebar := sidebarWidget(repos.component, favourites.component)
+	sidebar := sidebarWidget(repos, favourites)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
@@ -193,7 +181,7 @@ func layoutWidget() *Layout {
 	}
 }
 
-func Setup(client *githubv4.Client) error {
+func Setup() error {
 	app = tview.NewApplication()
 	view = layoutWidget()
 
@@ -201,8 +189,8 @@ func Setup(client *githubv4.Client) error {
 		return appInputHandler(view, event)
 	})
 	// Only refresh once the application has been mounted
-	go fetchStarredRepositories(client)
-	go fetchFavouriteRepositories()
+	go view.repos.Refresh()
+	go view.favourites.Refresh()
 	if err := app.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
 		return err
 	}

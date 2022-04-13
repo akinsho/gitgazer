@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"akinsho/gitgazer/models"
 	"fmt"
 	"strconv"
 
@@ -13,14 +14,14 @@ type SidebarWidget struct {
 }
 
 type panel struct {
-	title     string
-	component *tview.List
+	title  string
+	widget models.Widget
 }
 
-func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
+func sidebarWidget(repos *RepoWidget, favourites *FavouritesWidget) *SidebarWidget {
 	entries := []panel{
-		{title: "Repositories", component: repos},
-		{title: "Favourites", component: favourites},
+		{title: "Repositories", widget: repos},
+		{title: "Favourites", widget: favourites},
 	}
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
@@ -39,7 +40,8 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 			sidebar.SetTitle(e.title).
 				SetTitleColor(tcell.ColorBlue).
 				SetTitleAlign(tview.AlignLeft)
-			app.SetFocus(e.component)
+			go e.widget.Refresh()
+			app.SetFocus(e.widget.Component())
 		})
 	sidebarTabs.SetBorder(true)
 
@@ -57,7 +59,7 @@ func sidebarWidget(repos *tview.List, favourites *tview.List) *SidebarWidget {
 	}
 
 	for index, panel := range entries {
-		panels.AddPage(strconv.Itoa(index), panel.component, true, index == 0)
+		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == 0)
 		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, pad(panel.title, 1))
 		if index == 0 {
 			fmt.Fprintf(sidebarTabs, "|")

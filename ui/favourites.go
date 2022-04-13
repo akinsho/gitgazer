@@ -2,7 +2,6 @@ package ui
 
 import (
 	"akinsho/gitgazer/github"
-	"akinsho/gitgazer/models"
 
 	"github.com/rivo/tview"
 )
@@ -16,21 +15,19 @@ func updateFavouriteChange(index int, _, _ string, _ rune) {
 	if repo == nil {
 		return
 	}
-	// setRepoDescription(repo)
+	setRepoDescription(repo)
 }
 
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
-func (f *FavouritesWidget) refreshFavouritesList(
-	favourites []models.FavouriteRepository,
-	err error,
-) {
-	if f.component.GetItemCount() > 0 {
-		f.component.Clear()
-	}
+func (f *FavouritesWidget) Refresh() {
+	favourites, err := github.RetrieveFavouriteRepositories()
 	if err != nil {
 		openErrorModal(err)
 		return
+	}
+	if f.component.GetItemCount() > 0 {
+		f.component.Clear()
 	}
 	if len(favourites) == 0 {
 		f.component.AddItem("No favourites found", "", 0, nil)
@@ -42,11 +39,15 @@ func (f *FavouritesWidget) refreshFavouritesList(
 	}
 
 	for _, repo := range repos {
-		main, secondary, showSecondaryText, onSelect := repositoryEntry(&repo)
+		main, secondary, showSecondaryText, onSelect := repositoryEntry(repo)
 		f.component.AddItem(main, secondary, 0, onSelect).
 			ShowSecondaryText(showSecondaryText)
 	}
 	app.Draw()
+}
+
+func (f *FavouritesWidget) Component() *tview.List {
+	return f.component
 }
 
 func favouritesWidget() *FavouritesWidget {

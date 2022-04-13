@@ -43,7 +43,6 @@ func onRepoSelect(index int, mainText, secondaryText string, _ rune) {
 		}
 		go view.repos.removeFavouriteIndicator(index, repo)
 	}
-	go fetchFavouriteRepositories()
 }
 
 // throttledRepoList updates the visible issue details in the issue widget when a user
@@ -68,13 +67,18 @@ func throttledRepoList(duration time.Duration) func(int, string, string, rune) {
 
 var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
+func (r *RepoWidget) Component() *tview.List {
+	return r.component
+}
+
 func (r *RepoWidget) removeFavouriteIndicator(i int, repo *models.Repository) {
 	main, secondary := r.component.GetItemText(i)
 	main, _, _, _ = repositoryEntry(repo)
 	r.component.SetItemText(i, main, secondary)
 }
 
-func (r *RepoWidget) refreshRepositoryList(repositories []*models.Repository, err error) {
+func (r *RepoWidget) Refresh() {
+	repositories, err := github.ListStarredRepositories()
 	if err != nil {
 		openErrorModal(err)
 		return
