@@ -15,7 +15,7 @@ type SidebarWidget struct {
 
 type panel struct {
 	title  string
-	widget models.Widget
+	widget Widget
 }
 
 func sidebarWidget(
