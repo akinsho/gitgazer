@@ -51,6 +51,8 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 	if len(issues) == 0 {
 		r.component.SetText("No issues found").SetTextAlign(tview.AlignCenter)
 	} else {
+		_, _, width, _ := r.component.GetInnerRect()
+		header := strings.Repeat("-", width)
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
 			title := truncateText(issue.GetTitle(), 80, true)
@@ -66,15 +68,16 @@ func (r *IssuesWidget) refreshIssuesList(repo *models.Repository) {
 			previous := r.component.GetText(false)
 			list := []string{
 				previous,
+				header,
 				fmt.Sprintf(
-					"[%s]%s[-:-:bu] %s %s - %s",
+					"[%s]%s[-::bu] %s %s - %s[-:-:-]",
 					issueColor,
 					tview.Escape(fmt.Sprintf("[%s]", strings.ToUpper(issue.GetState()))),
 					issueNumber,
 					title,
 					author,
 				),
-				body,
+				header,
 				drawLabels(issue.Labels.Nodes),
 				body,
 			}
