@@ -174,7 +174,10 @@ func helpWidget() *tview.TextView {
 	return help
 }
 
-func setupTheme() {
+// setupTheme sets up the theme for the application
+// which can be derived from the app's config
+// TODO: pull colour values from config
+func setupTheme(_ *app.Config) {
 	theme := tview.Theme{
 		TitleColor:                  tcell.ColorBlue,
 		MoreContrastBackgroundColor: tcell.ColorGray,
@@ -222,7 +225,7 @@ func layoutWidget(context *app.Context) *Layout {
 }
 
 func Setup(context *app.Context) error {
-	setupTheme()
+	setupTheme(context.Config)
 	UI = tview.NewApplication()
 	view = layoutWidget(context)
 
