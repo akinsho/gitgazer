@@ -14,13 +14,15 @@ type Config struct {
 	directory      string
 	configFilepath string
 	tokenPath      string
+	StoragePath    string
 	Token          *api.AccessToken
 }
 
 const (
-	configFile = "config.yaml"
-	tokenFile  = "token.json"
-	configDir  = "gitgazer"
+	configFile  = "config.yaml"
+	tokenFile   = "token.json"
+	configDir   = "gitgazer"
+	StoragePath = "gazers.db"
 )
 
 // InitConfig setup the configuration file if need and read user options into state
@@ -37,6 +39,7 @@ func InitConfig() (*Config, error) {
 		directory:      dir,
 		configFilepath: filepath.Join(dir, configFile),
 		tokenPath:      filepath.Join(dir, tokenFile),
+		StoragePath:    filepath.Join(dir, StoragePath),
 	}
 	config.ensureDirectory()
 	err = config.retrieveAccessToken()

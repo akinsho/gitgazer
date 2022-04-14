@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	db, err := storage.Setup()
+	db, err := storage.Setup(config.StoragePath)
 	if err != nil {
 		log.Panicln(err)
 	}

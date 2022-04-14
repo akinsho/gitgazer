@@ -8,8 +8,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const file string = "gazers.db"
-
 type Database struct {
 	sqlDB *sql.DB
 }
@@ -23,8 +21,8 @@ const create string = `
 	description TEXT
   );`
 
-func Setup() (*Database, error) {
-	db, err := sql.Open("sqlite3", file)
+func Setup(path string) (*Database, error) {
+	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return nil, err
 	}
