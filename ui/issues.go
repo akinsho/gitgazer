@@ -58,7 +58,7 @@ func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
 		r.component.SetText("No issues found").SetTextAlign(tview.AlignCenter)
 	} else {
 		_, _, width, _ := r.component.GetInnerRect()
-		header := strings.Repeat("-", width)
+		header := createHeader(width)
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
 			title := common.TruncateText(issue.GetTitle(), 80, true)

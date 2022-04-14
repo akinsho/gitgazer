@@ -118,6 +118,10 @@ func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
 	return modal
 }
 
+func createHeader(width int) string {
+	return strings.Repeat("─", width)
+}
+
 func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	name := repo.GetName()
 	description := repo.GetDescription()
