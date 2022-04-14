@@ -6,7 +6,6 @@ import (
 	"akinsho/gitgazer/github"
 	"fmt"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -110,17 +109,13 @@ func updateStarredList(index int, _, _ string, _ rune) {
 }
 
 func reposWidget(ctx *app.Context) *RepoWidget {
-	repos := tview.NewList()
+	repos := listWidget(ListOptions{
+		onChanged: updateStarredList,
+		onSelected: func(i int, s1, s2 string, r rune) {
+			onRepoSelect(ctx, i, s1, s2, r)
+		},
+	})
 	repos.AddItem("Loading repos...", "", 0, nil)
 
-	repos.SetChangedFunc(updateStarredList).
-		SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-			onRepoSelect(ctx, i, s1, s2, r)
-		}).
-		SetHighlightFullLine(true).
-		SetSelectedBackgroundColor(tcell.ColorForestGreen).
-		SetMainTextColor(tcell.ColorForestGreen).
-		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
-		SetSecondaryTextColor(tcell.ColorDarkGray).SetBorderPadding(0, 0, 1, 1)
 	return &RepoWidget{component: repos, context: ctx}
 }

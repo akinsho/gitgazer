@@ -65,8 +65,9 @@ func (f *FavouritesWidget) Component() *tview.List {
 }
 
 func favouritesWidget(ctx *app.Context) *FavouritesWidget {
-	favourites := tview.NewList()
-	favourites.SetBorderPadding(0, 0, 1, 1)
-	favourites.SetChangedFunc(updateFavouriteChange)
+	favourites := listWidget(ListOptions{
+		onSelected: func(int, string, string, rune) {},
+		onChanged:  updateFavouriteChange,
+	})
 	return &FavouritesWidget{favourites, ctx}
 }

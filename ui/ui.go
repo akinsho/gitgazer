@@ -175,6 +175,23 @@ func helpWidget() *tview.TextView {
 	return help
 }
 
+type ListOptions struct {
+	onSelected func(int, string, string, rune)
+	onChanged  func(int, string, string, rune)
+}
+
+func listWidget(opts ListOptions) *tview.List {
+	list := tview.NewList()
+	list.SetChangedFunc(opts.onChanged).
+		SetSelectedFunc(opts.onSelected).
+		SetHighlightFullLine(true).
+		SetSelectedBackgroundColor(tcell.ColorForestGreen).
+		SetMainTextColor(tcell.ColorForestGreen).
+		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
+		SetBorderPadding(0, 0, 1, 1)
+	return list
+}
+
 // setupTheme sets up the theme for the application
 // which can be derived from the app's config
 // TODO: pull colour values from config
