@@ -82,7 +82,6 @@ func (r *RepoWidget) Refresh() {
 	}
 	view.repos.addFavouriteIndicators()
 	UI.Draw()
-	UI.SetFocus(r.component)
 }
 
 // addFavouriteIndicators loops through all repositories and if they have been previously

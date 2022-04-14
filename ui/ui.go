@@ -242,6 +242,16 @@ func layoutWidget(context *app.Context) *Layout {
 	}
 }
 
+func focusActiveList() {
+	if !view.favourites.IsEmpty() {
+		view.favourites.Refresh()
+		UI.SetFocus(view.favourites.component)
+	} else {
+		view.repos.Refresh()
+		UI.SetFocus(view.repos.component)
+	}
+}
+
 func Setup(context *app.Context) error {
 	setupTheme(context.Config)
 	UI = tview.NewApplication()
@@ -250,9 +260,8 @@ func Setup(context *app.Context) error {
 	UI.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)
 	})
-	// Only refresh once the application has been mounted
-	go view.repos.Refresh()
-	go view.favourites.Refresh()
+	// Only focus once the application has been mounted
+	go focusActiveList()
 	if err := UI.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
 		return err
 	}
