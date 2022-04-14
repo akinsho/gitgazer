@@ -168,7 +168,8 @@ func setRepoDescription(repo *domain.Repository) {
 func helpWidget() *tview.TextView {
 	navAdvice := "Cycle through sections using [::b]TAB/SHIFT-TAB[::-]"
 	closeAdvice := "Quit using [::b]<C-Q>[::-] or [::b]<C-C>[::-]"
-	helpText := fmt.Sprintf("%s | %s", navAdvice, closeAdvice)
+	listNavAdvice := "Navigate through the list using [::b]j/k[::-]"
+	helpText := strings.Join([]string{navAdvice, closeAdvice, listNavAdvice}, " | ")
 	help := tview.NewTextView().SetText(helpText).SetDynamicColors(true)
 	help.SetBorder(true)
 	return help
