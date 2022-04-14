@@ -25,7 +25,7 @@ func sidebarWidget(
 	favourites *FavouritesWidget,
 ) *SidebarWidget {
 	entries := []panel{
-		{title: "Repositories", widget: repos},
+		{title: "Starred Repositories", widget: repos},
 		{title: "Favourites", widget: favourites},
 	}
 	sidebar := tview.NewFlex()
