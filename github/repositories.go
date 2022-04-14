@@ -3,6 +3,7 @@ package github
 import (
 	"akinsho/gitgazer/api"
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/domain"
 
 	"golang.org/x/sync/errgroup"
@@ -144,7 +145,7 @@ func UnfavouriteRepo(ctx *app.Context, index int) (err error) {
 		return
 	}
 	err = ctx.DB.DeleteByRepoID(repo.ID)
-	favourites = append(favourites[:index], favourites[index+1:]...)
+	favourites = common.RemoveIndex(favourites, index)
 	if err != nil {
 		return err
 	}
