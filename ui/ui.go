@@ -160,10 +160,28 @@ func setRepoDescription(repo *domain.Repository) {
 	view.description.SetText(text)
 }
 
+func helpWidget() *tview.TextView {
+	navAdvice := "Cycle through sections using [::b]TAB/SHIFT-TAB[::-]"
+	closeAdvice := "Quit using [::b]<C-Q>[::-] or [::b]<C-C>[::-]"
+	helpText := fmt.Sprintf("%s | %s", navAdvice, closeAdvice)
+	help := tview.NewTextView().SetText(helpText).SetDynamicColors(true)
+	help.SetBorder(true)
+	return help
+}
+
+func setupTheme() {
+	theme := tview.Theme{
+		TitleColor:                  tcell.ColorBlue,
+		MoreContrastBackgroundColor: tcell.ColorGray,
+	}
+	tview.Styles = theme
+}
+
 func layoutWidget(context *app.Context) *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
+	frame := tview.NewFlex().SetDirection(tview.FlexRow)
 	layout := tview.NewFlex()
 
 	favourites := favouritesWidget(context)
@@ -183,11 +201,7 @@ func layoutWidget(context *app.Context) *Layout {
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(main, 0, 3, false), 0, 3, false)
 
-	navAdvice := "Cycle through sections using TAB/SHIFT-TAB"
-	closeAdvice := "Quit using <C-Q> or <C-C>"
-	frame := tview.NewFrame(layout).
-		SetBorders(0, 0, 0, 0, 0, 0).
-		AddText(fmt.Sprintf("%s | %s", navAdvice, closeAdvice), false, tview.AlignLeft, tcell.ColorWhite)
+	frame.AddItem(layout, 0, 1, false).AddItem(helpWidget(), 3, 0, false)
 
 	pages.AddPage("main", frame, true, true)
 
@@ -217,12 +231,4 @@ func Setup(context *app.Context) error {
 		return err
 	}
 	return nil
-}
-
-func setupTheme() {
-	theme := tview.Theme{
-		TitleColor:                  tcell.ColorBlue,
-		MoreContrastBackgroundColor: tcell.ColorGray,
-	}
-	tview.Styles = theme
 }
