@@ -17,7 +17,10 @@ type IssuesWidget struct {
 
 func issuesWidget(ctx *gazerapp.Context) *IssuesWidget {
 	issues := tview.NewTextView()
-	issues.SetDynamicColors(true).SetBorder(true).SetTitle("Issues").SetBorderPadding(0, 0, 1, 1)
+	issues.SetDynamicColors(true).
+		SetBorder(true).
+		SetTitle(pad("Issues", 1)).
+		SetBorderPadding(0, 0, 1, 1)
 	return &IssuesWidget{component: issues, context: ctx}
 }
 

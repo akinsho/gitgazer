@@ -41,7 +41,7 @@ func sidebarWidget(
 				return
 			}
 			e := entries[num]
-			sidebar.SetTitle(e.title).
+			sidebar.SetTitle(pad(e.title, 1)).
 				SetTitleColor(tcell.ColorBlue).
 				SetTitleAlign(tview.AlignLeft)
 			go e.widget.Refresh()

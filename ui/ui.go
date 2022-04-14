@@ -148,7 +148,7 @@ func throttledRepoList(duration time.Duration) func(*domain.Repository) {
 var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
 func setRepoDescription(repo *domain.Repository) {
-	view.description.SetTitle(repo.GetName()).
+	view.description.SetTitle(pad(repo.GetName(), 1)).
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorBlue)
 	stars := fmt.Sprintf("[red]Stars[white]: 🌟%d", repo.GetStargazerCount())
