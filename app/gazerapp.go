@@ -7,5 +7,6 @@ import (
 
 type Context struct {
 	Client *api.Client
-	DB *storage.Database
+	DB     *storage.Database
+	Config *Config
 }

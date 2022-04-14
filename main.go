@@ -12,7 +12,11 @@ import (
 )
 
 func main() {
-	client, err := api.Setup()
+	config, err := gazerapp.InitConfig()
+	if err != nil {
+		log.Panicln(err)
+	}
+	client, err := api.Setup(config.Token)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -23,6 +27,7 @@ func main() {
 
 	context := &gazerapp.Context{
 		Client: client,
+		Config: config,
 		DB:     db,
 	}
 
