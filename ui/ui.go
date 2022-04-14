@@ -169,7 +169,13 @@ func helpWidget() *tview.TextView {
 	navAdvice := "Cycle through sections using [::b]TAB/SHIFT-TAB[::-]"
 	closeAdvice := "Quit using [::b]<C-Q>[::-] or [::b]<C-C>[::-]"
 	listNavAdvice := "Navigate through the list using [::b]j/k[::-]"
-	helpText := strings.Join([]string{navAdvice, closeAdvice, listNavAdvice}, " | ")
+	listNavScrollAdvice := "Scroll through the issues list using [::b]C-D/C-U[::-]"
+	helpText := strings.Join([]string{
+		navAdvice,
+		closeAdvice,
+		listNavAdvice,
+		listNavScrollAdvice,
+	}, " | ")
 	help := tview.NewTextView().SetText(helpText).SetDynamicColors(true)
 	help.SetBorder(true)
 	return help
