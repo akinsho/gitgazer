@@ -17,7 +17,7 @@ func updateFavouriteChange(index int, _, _ string, _ rune) {
 	if repo == nil {
 		return
 	}
-	updateRepoList(repo)
+	updateRepositoryList(repo)
 }
 
 // refreshFavouritesList fetches all saved repositories from the database and

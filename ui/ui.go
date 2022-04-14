@@ -135,9 +135,9 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
 
-// throttledRepoList updates the visible issue details in the issue widget when a user
+// throttledListUpdate updates the visible issue details in the issue widget when a user
 // has paused over a repository in the list for more than interval time
-func throttledRepoList(duration time.Duration) func(*domain.Repository) {
+func throttledListUpdate(duration time.Duration) func(*domain.Repository) {
 	var timer *time.Timer
 	return func(repo *domain.Repository) {
 		setRepoDescription(repo)
@@ -151,7 +151,7 @@ func throttledRepoList(duration time.Duration) func(*domain.Repository) {
 	}
 }
 
-var updateRepoList = throttledRepoList(time.Millisecond * 200)
+var updateRepositoryList = throttledListUpdate(time.Millisecond * 200)
 
 func setRepoDescription(repo *domain.Repository) {
 	view.description.SetTitle(common.Pad(repo.GetName(), 1)).

@@ -102,7 +102,7 @@ func updateStarredList(index int, _, _ string, _ rune) {
 	if repo == nil {
 		return
 	}
-	updateRepoList(repo)
+	updateRepositoryList(repo)
 }
 
 func reposWidget(ctx *app.Context) *RepoWidget {
