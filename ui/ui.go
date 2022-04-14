@@ -12,17 +12,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type Layout struct {
-	pages       *tview.Pages
-	layout      *tview.Flex
-	main        *tview.Flex
-	description *tview.TextView
-	repos       *RepoWidget
-	issues      *IssuesWidget
-	favourites  *FavouritesWidget
-}
-
-var (
+const (
 	leftPillIcon  = "█"
 	rightPillIcon = "█"
 	repoIcon      = ""
@@ -34,16 +24,32 @@ var (
 	UI   *tview.Application
 )
 
+type Layout struct {
+	pages       *tview.Pages
+	layout      *tview.Flex
+	main        *tview.Flex
+	description *tview.TextView
+	repos       *RepoWidget
+	issues      *IssuesWidget
+	favourites  *FavouritesWidget
+}
+
+func (l *Layout) ActiveList() *tview.List {
+	if view.favourites.component.HasFocus() {
+		return l.favourites.component
+	}
+	return l.repos.component
+}
+
 //--------------------------------------------------------------------------------------------------
 //  Input handlers
 //--------------------------------------------------------------------------------------------------
 
 func appInputHandler(layout *Layout, event *tcell.EventKey) *tcell.EventKey {
 	elements := []tview.Primitive{
-		layout.main,
-		layout.issues.component,
+		layout.ActiveList(),
 		layout.description,
-		layout.repos.component,
+		layout.issues.component,
 	}
 	switch event.Key() {
 	case tcell.KeyCtrlQ:
