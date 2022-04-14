@@ -185,7 +185,7 @@ func listWidget(opts ListOptions) *tview.List {
 	list.SetChangedFunc(opts.onChanged).
 		SetSelectedFunc(opts.onSelected).
 		SetHighlightFullLine(true).
-		SetSelectedBackgroundColor(tcell.ColorForestGreen).
+		SetSelectedBackgroundColor(tcell.ColorRebeccaPurple).
 		SetMainTextColor(tcell.ColorForestGreen).
 		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
 		SetBorderPadding(0, 0, 1, 1)
