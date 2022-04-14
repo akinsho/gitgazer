@@ -203,6 +203,7 @@ func layoutWidget(context *app.Context) *Layout {
 }
 
 func Setup(context *app.Context) error {
+	setupTheme()
 	UI = tview.NewApplication()
 	view = layoutWidget(context)
 
@@ -216,4 +217,12 @@ func Setup(context *app.Context) error {
 		return err
 	}
 	return nil
+}
+
+func setupTheme() {
+	theme := tview.Theme{
+		TitleColor:                  tcell.ColorBlue,
+		MoreContrastBackgroundColor: tcell.ColorGray,
+	}
+	tview.Styles = theme
 }
