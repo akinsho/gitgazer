@@ -1,7 +1,7 @@
 package ui
 
 import (
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
@@ -12,10 +12,10 @@ import (
 
 type IssuesWidget struct {
 	component *tview.TextView
-	context   *gazerapp.Context
+	context   *app.Context
 }
 
-func issuesWidget(ctx *gazerapp.Context) *IssuesWidget {
+func issuesWidget(ctx *app.Context) *IssuesWidget {
 	issues := tview.NewTextView()
 	issues.SetDynamicColors(true).
 		SetBorder(true).
@@ -91,7 +91,7 @@ func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
 			r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 		}
 	}
-	app.Draw()
+	UI.Draw()
 }
 
 func removeBlankLines(lines []string) []string {

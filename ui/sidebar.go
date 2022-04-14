@@ -1,7 +1,7 @@
 package ui
 
 import (
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"fmt"
 	"strconv"
 
@@ -19,7 +19,7 @@ type panel struct {
 }
 
 func sidebarWidget(
-	ctx *gazerapp.Context,
+	ctx *app.Context,
 	repos *RepoWidget,
 	favourites *FavouritesWidget,
 ) *SidebarWidget {
@@ -45,7 +45,7 @@ func sidebarWidget(
 				SetTitleColor(tcell.ColorBlue).
 				SetTitleAlign(tview.AlignLeft)
 			go e.widget.Refresh()
-			app.SetFocus(e.widget.Component())
+			UI.SetFocus(e.widget.Component())
 		})
 	sidebarTabs.SetBorder(true)
 

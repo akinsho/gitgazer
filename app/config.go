@@ -1,4 +1,4 @@
-package gazerapp
+package app
 
 import (
 	"encoding/json"

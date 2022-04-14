@@ -1,7 +1,7 @@
 package ui
 
 import (
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/github"
 	"fmt"
@@ -12,14 +12,14 @@ import (
 
 type RepoWidget struct {
 	component *tview.List
-	context   *gazerapp.Context
+	context   *app.Context
 }
 
 var heartIcon = "❤"
 
 // isFavourite checks if the repository is a favourite
 // by seeing if the database contains a match by ID
-func isFavourite(ctx *gazerapp.Context, repo *domain.Repository) bool {
+func isFavourite(ctx *app.Context, repo *domain.Repository) bool {
 	r, err := github.GetFavouriteByRepositoryID(ctx, repo.ID)
 	if err != nil {
 		return false
@@ -27,7 +27,7 @@ func isFavourite(ctx *gazerapp.Context, repo *domain.Repository) bool {
 	return r != nil
 }
 
-func onRepoSelect(ctx *gazerapp.Context, index int, mainText, secondaryText string, _ rune) {
+func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
 	repo := github.GetRepositoryByIndex(index)
 	if !isFavourite(ctx, repo) {
 		err := github.FavouriteRepo(ctx, index, mainText, secondaryText)
@@ -78,8 +78,8 @@ func (r *RepoWidget) Refresh() {
 			ShowSecondaryText(showSecondaryText)
 	}
 	view.repos.addFavouriteIndicators()
-	app.Draw()
-	app.SetFocus(r.component)
+	UI.Draw()
+	UI.SetFocus(r.component)
 }
 
 // addFavouriteIndicators loops through all repositories and if they have been previously
@@ -105,7 +105,7 @@ func updateStarredList(index int, _, _ string, _ rune) {
 	updateRepoList(repo)
 }
 
-func reposWidget(ctx *gazerapp.Context) *RepoWidget {
+func reposWidget(ctx *app.Context) *RepoWidget {
 	repos := tview.NewList()
 	repos.AddItem("Loading repos...", "", 0, nil)
 

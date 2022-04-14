@@ -2,7 +2,7 @@ package github
 
 import (
 	"akinsho/gitgazer/api"
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/domain"
 
 	"golang.org/x/sync/errgroup"
@@ -70,7 +70,7 @@ func fetchFavouriteRepo(
 	return nil
 }
 
-func RetrieveFavouriteRepositories(ctx *gazerapp.Context) ([]*domain.Repository, error) {
+func RetrieveFavouriteRepositories(ctx *app.Context) ([]*domain.Repository, error) {
 	saved, err := ListSavedFavourites(ctx)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func RetrieveFavouriteRepositories(ctx *gazerapp.Context) ([]*domain.Repository,
 }
 
 func GetFavouriteByRepositoryID(
-	ctx *gazerapp.Context,
+	ctx *app.Context,
 	id string,
 ) (favourite *domain.FavouriteRepository, err error) {
 	return ctx.DB.GetFavouriteByRepoID(id)
@@ -118,7 +118,7 @@ func GetFavouriteRepositoryByIndex(index int) *domain.Repository {
 	return favourites[index]
 }
 
-func ListSavedFavourites(ctx *gazerapp.Context) (repos []*domain.FavouriteRepository, err error) {
+func ListSavedFavourites(ctx *app.Context) (repos []*domain.FavouriteRepository, err error) {
 	repos, err = ctx.DB.ListFavourites()
 	if err != nil {
 		return
@@ -126,7 +126,7 @@ func ListSavedFavourites(ctx *gazerapp.Context) (repos []*domain.FavouriteReposi
 	return
 }
 
-func FavouriteRepo(ctx *gazerapp.Context, index int, main, secondary string) (err error) {
+func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
 		return
@@ -138,7 +138,7 @@ func FavouriteRepo(ctx *gazerapp.Context, index int, main, secondary string) (er
 	return nil
 }
 
-func UnfavouriteRepo(ctx *gazerapp.Context, index int) (err error) {
+func UnfavouriteRepo(ctx *app.Context, index int) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
 		return

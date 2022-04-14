@@ -1,7 +1,7 @@
 package ui
 
 import (
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
@@ -29,7 +29,7 @@ var (
 
 var (
 	view *Layout
-	app  *tview.Application
+	UI   *tview.Application
 )
 
 //--------------------------------------------------------------------------------------------------
@@ -45,11 +45,11 @@ func appInputHandler(layout *Layout, event *tcell.EventKey) *tcell.EventKey {
 	}
 	switch event.Key() {
 	case tcell.KeyCtrlQ:
-		app.Stop()
+		UI.Stop()
 	case tcell.KeyTab:
-		cycleFocus(app, elements, false)
+		cycleFocus(UI, elements, false)
 	case tcell.KeyBacktab:
-		cycleFocus(app, elements, true)
+		cycleFocus(UI, elements, true)
 	}
 	return event
 }
@@ -159,7 +159,7 @@ func setRepoDescription(repo *domain.Repository) {
 	view.description.SetText(text)
 }
 
-func layoutWidget(context *gazerapp.Context) *Layout {
+func layoutWidget(context *app.Context) *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
@@ -201,17 +201,17 @@ func layoutWidget(context *gazerapp.Context) *Layout {
 	}
 }
 
-func Setup(context *gazerapp.Context) error {
-	app = tview.NewApplication()
+func Setup(context *app.Context) error {
+	UI = tview.NewApplication()
 	view = layoutWidget(context)
 
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	UI.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)
 	})
 	// Only refresh once the application has been mounted
 	go view.repos.Refresh()
 	go view.favourites.Refresh()
-	if err := app.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
+	if err := UI.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
 		return err
 	}
 	return nil

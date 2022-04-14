@@ -1,7 +1,7 @@
 package ui
 
 import (
-	gazerapp "akinsho/gitgazer/app"
+	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/github"
 
 	"github.com/rivo/tview"
@@ -9,7 +9,7 @@ import (
 
 type FavouritesWidget struct {
 	component *tview.List
-	context   *gazerapp.Context
+	context   *app.Context
 }
 
 func updateFavouriteChange(index int, _, _ string, _ rune) {
@@ -45,14 +45,14 @@ func (f *FavouritesWidget) Refresh() {
 		f.component.AddItem(main, secondary, 0, onSelect).
 			ShowSecondaryText(showSecondaryText)
 	}
-	app.Draw()
+	UI.Draw()
 }
 
 func (f *FavouritesWidget) Component() *tview.List {
 	return f.component
 }
 
-func favouritesWidget(ctx *gazerapp.Context) *FavouritesWidget {
+func favouritesWidget(ctx *app.Context) *FavouritesWidget {
 	favourites := tview.NewList()
 	favourites.SetBorderPadding(0, 0, 1, 1)
 	favourites.SetChangedFunc(updateFavouriteChange)
