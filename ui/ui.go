@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
@@ -148,7 +149,7 @@ func throttledRepoList(duration time.Duration) func(*domain.Repository) {
 var updateRepoList = throttledRepoList(time.Millisecond * 200)
 
 func setRepoDescription(repo *domain.Repository) {
-	view.description.SetTitle(pad(repo.GetName(), 1)).
+	view.description.SetTitle(common.Pad(repo.GetName(), 1)).
 		SetTitleAlign(tview.AlignLeft).
 		SetTitleColor(tcell.ColorBlue)
 	stars := fmt.Sprintf("[red]Stars[white]: 🌟%d", repo.GetStargazerCount())

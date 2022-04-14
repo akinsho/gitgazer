@@ -1,4 +1,4 @@
-package ui
+package common
 
 import (
 	"strings"
@@ -6,12 +6,12 @@ import (
 	"unicode/utf8"
 )
 
-func pad(str string, size int) string {
+func Pad(str string, size int) string {
 	padding := strings.Repeat(" ", size)
 	return padding + str + padding
 }
 
-func truncateText(str string, max int, ellipsis bool) string {
+func TruncateText(str string, max int, ellipsis bool) string {
 	suffix := ""
 	if ellipsis {
 		suffix = "…"
@@ -42,4 +42,10 @@ func throttle(f func(), d time.Duration) func() {
 			}()
 		}
 	}
+}
+
+func RemoveIndex[T any](s []T, index int) []T {
+	ret := make([]T, 0)
+	ret = append(ret, s[:index]...)
+	return append(ret, s[index+1:]...)
 }

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
@@ -19,7 +20,7 @@ func issuesWidget(ctx *app.Context) *IssuesWidget {
 	issues := tview.NewTextView()
 	issues.SetDynamicColors(true).
 		SetBorder(true).
-		SetTitle(pad("Issues", 1)).
+		SetTitle(common.Pad("Issues", 1)).
 		SetBorderPadding(0, 0, 1, 1)
 	return &IssuesWidget{component: issues, context: ctx}
 }
@@ -60,7 +61,7 @@ func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
 		header := strings.Repeat("-", width)
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
-			title := truncateText(issue.GetTitle(), 80, true)
+			title := common.TruncateText(issue.GetTitle(), 80, true)
 			author := ""
 			if issue.Author != nil && issue.Author.Login != "" {
 				author += "[::bu]@" + issue.Author.Login + "[::-]"

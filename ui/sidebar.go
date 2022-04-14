@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"fmt"
 	"strconv"
 
@@ -41,7 +42,7 @@ func sidebarWidget(
 				return
 			}
 			e := entries[num]
-			sidebar.SetTitle(pad(e.title, 1)).
+			sidebar.SetTitle(common.Pad(e.title, 1)).
 				SetTitleColor(tcell.ColorBlue).
 				SetTitleAlign(tview.AlignLeft)
 			go e.widget.Refresh()
@@ -64,7 +65,7 @@ func sidebarWidget(
 
 	for index, panel := range entries {
 		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == 0)
-		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, pad(panel.title, 1))
+		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, common.Pad(panel.title, 1))
 		if index == 0 {
 			fmt.Fprintf(sidebarTabs, "|")
 		}
