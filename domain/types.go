@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Repo interface {
 	GetDescription() string
 	GetName() string
@@ -32,13 +34,14 @@ type Author struct {
 }
 
 type Issue struct {
-	State  string
-	Closed bool
-	Title  string
-	Number int
-	Author *Author
-	Body   string
-	Labels struct {
+	State     string
+	CreatedAt time.Time
+	Closed    bool
+	Title     string
+	Number    int
+	Author    *Author
+	Body      string
+	Labels    struct {
 		Nodes []*Label
 	} `graphql:"labels(first: $labelCount)"`
 }

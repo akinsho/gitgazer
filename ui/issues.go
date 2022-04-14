@@ -83,6 +83,7 @@ func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
 					author,
 				),
 				header,
+				fmt.Sprintf("Created at: %s", issue.CreatedAt.Format("02-01-2006 15:04:05")),
 				drawLabels(issue.Labels.Nodes),
 				body,
 			}
