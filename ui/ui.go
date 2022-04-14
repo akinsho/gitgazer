@@ -26,6 +26,7 @@ var (
 	leftPillIcon  = "█"
 	rightPillIcon = "█"
 	repoIcon      = ""
+	headerChar    = "─"
 )
 
 var (
@@ -119,7 +120,7 @@ func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
 }
 
 func createHeader(width int) string {
-	return strings.Repeat("─", width)
+	return strings.Repeat(headerChar, width)
 }
 
 func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
