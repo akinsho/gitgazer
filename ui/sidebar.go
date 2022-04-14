@@ -63,8 +63,15 @@ func sidebarWidget(
 			ScrollToHighlight()
 	}
 
+	// We want to start on the favourites page since we like those the best not the super
+	// long list of all repos we've starred.
+	focused := 0
+	if !favourites.IsEmpty() {
+		focused = 1
+	}
+
 	for index, panel := range entries {
-		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == 0)
+		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == focused)
 		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, common.Pad(panel.title, 1))
 		if index == 0 {
 			fmt.Fprintf(sidebarTabs, "|")
@@ -81,7 +88,7 @@ func sidebarWidget(
 		AddItem(panels, 0, 1, false).
 		AddItem(sidebarTabs, 3, 0, false)
 
-	sidebarTabs.Highlight("0")
+	sidebarTabs.Highlight(strconv.Itoa(focused))
 
 	return &SidebarWidget{component: sidebar}
 }

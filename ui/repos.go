@@ -50,6 +50,10 @@ func (r *RepoWidget) Component() *tview.List {
 	return r.component
 }
 
+func (r *RepoWidget) IsEmpty() bool {
+	return github.StarredRepositoryCount() == 0
+}
+
 func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
 	main, secondary := r.component.GetItemText(i)
 	main, _, _, _ = repositoryEntry(repo)

@@ -48,6 +48,18 @@ func (f *FavouritesWidget) Refresh() {
 	UI.Draw()
 }
 
+func (f *FavouritesWidget) IsEmpty() bool {
+	favs, err := github.ListSavedFavourites(f.context)
+	if err != nil {
+		openErrorModal(err)
+		return true
+	}
+	if len(favs) > 0 {
+		return false
+	}
+	return github.FavouriteRepositoryCount() == 0
+}
+
 func (f *FavouritesWidget) Component() *tview.List {
 	return f.component
 }

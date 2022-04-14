@@ -127,6 +127,14 @@ func ListSavedFavourites(ctx *app.Context) (repos []*domain.FavouriteRepository,
 	return
 }
 
+func FavouriteRepositoryCount() int {
+	return len(favourites)
+}
+
+func StarredRepositoryCount() int {
+	return len(repositories)
+}
+
 func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err error) {
 	repo := GetRepositoryByIndex(index)
 	if repo == nil {
