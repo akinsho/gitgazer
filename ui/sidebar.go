@@ -37,7 +37,7 @@ func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func
 			return
 		}
 		e := panels[index]
-		title := getSidebarTitle(panels, e)
+		title := getPanelTitle(panels, e)
 		sidebar.SetTitle(common.Pad(title, 1)).
 			SetTitleColor(tcell.ColorBlue).
 			SetTitleAlign(tview.AlignLeft)
@@ -63,26 +63,17 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 	}
 }
 
-func sidebarWidget(
+func panelWidget(
 	ctx *app.Context,
-	repos *RepoWidget,
-	favourites *FavouritesWidget,
+	focused int,
+	entries []panel,
 ) *SidebarWidget {
-	entries := []panel{
-		{id: "starred", title: "Starred", widget: repos},
-		{id: "favourites", title: "Favourites", widget: favourites},
-	}
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
 	panels.SetChangedFunc(onPanelChange(entries, panels, sidebar))
 
 	previousTab := findNext(panels, entries, true)
 	nextTab := findNext(panels, entries, false)
-
-	focused := 0
-	if !favourites.IsEmpty() {
-		focused = 1
-	}
 
 	for index, panel := range entries {
 		panels.AddPage(panel.id, panel.widget.Component(), true, index == focused)
@@ -102,7 +93,7 @@ func sidebarWidget(
 	return &SidebarWidget{component: sidebar}
 }
 
-func getSidebarTitle(entries []panel, e panel) string {
+func getPanelTitle(entries []panel, e panel) string {
 	title := ""
 	for i, entry := range entries {
 		t := entry.title

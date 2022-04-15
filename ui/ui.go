@@ -204,6 +204,22 @@ func listWidget(opts ListOptions) *tview.List {
 	return list
 }
 
+func repositoryPanelWidget(
+	favourites *FavouritesWidget,
+	context *app.Context,
+	repos *RepoWidget,
+) *SidebarWidget {
+	leftSidebarFocused := 0
+	if !favourites.IsEmpty() {
+		leftSidebarFocused = 1
+	}
+	sidebar := panelWidget(context, leftSidebarFocused, []panel{
+		{id: "starred", title: "Starred", widget: repos},
+		{id: "favourites", title: "Favourites", widget: favourites},
+	})
+	return sidebar
+}
+
 // setupTheme sets up the theme for the application
 // which can be derived from the app's config
 // TODO: pull colour values from config
@@ -225,7 +241,8 @@ func layoutWidget(context *app.Context) *Layout {
 	favourites := favouritesWidget(context)
 	repos := reposWidget(context)
 	issues := issuesWidget(context)
-	sidebar := sidebarWidget(context, repos, favourites)
+
+	sidebar := repositoryPanelWidget(favourites, context, repos)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
