@@ -11,12 +11,38 @@ import (
 )
 
 type SidebarWidget struct {
-	component *tview.Flex
+	currentPanel int
+	component    *tview.Flex
 }
 
 type panel struct {
 	title  string
 	widget Widget
+}
+
+func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func() {
+	return func() {
+		num := getCurrentPage(pages)
+		if num == nil {
+			return
+		}
+		e := panels[*num]
+		title := getSidebarTitle(panels, e)
+		sidebar.SetTitle(common.Pad(title, 1)).
+			SetTitleColor(tcell.ColorBlue).
+			SetTitleAlign(tview.AlignLeft)
+		go e.widget.Refresh()
+		UI.SetFocus(e.widget.Component())
+	}
+}
+
+func getCurrentPage(pages *tview.Pages) *int64 {
+	name, _ := pages.GetFrontPage()
+	num, err := strconv.ParseInt(name, 10, 0)
+	if err != nil {
+		return nil
+	}
+	return &num
 }
 
 func sidebarWidget(
@@ -25,42 +51,30 @@ func sidebarWidget(
 	favourites *FavouritesWidget,
 ) *SidebarWidget {
 	entries := []panel{
-		{title: "Starred Repositories", widget: repos},
+		{title: "Starred", widget: repos},
 		{title: "Favourites", widget: favourites},
 	}
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
-	sidebarTabs := tview.NewTextView().
-		SetDynamicColors(true).
-		SetRegions(true).
-		SetWrap(false).
-		SetHighlightedFunc(func(added, _, _ []string) {
-			id := added[0]
-			panels.SwitchToPage(id)
-			num, err := strconv.ParseInt(id, 10, 0)
-			if err != nil {
-				return
-			}
-			e := entries[num]
-			sidebar.SetTitle(common.Pad(e.title, 1)).
-				SetTitleColor(tcell.ColorBlue).
-				SetTitleAlign(tview.AlignLeft)
-			go e.widget.Refresh()
-			UI.SetFocus(e.widget.Component())
-		})
-	sidebarTabs.SetBorder(true)
+	panels.SetChangedFunc(onPanelChange(entries, panels, sidebar))
 
 	previousTab := func() {
-		tab, _ := strconv.Atoi(sidebarTabs.GetHighlights()[0])
+		num := getCurrentPage(panels)
+		if num == nil {
+			return
+		}
+		tab := int(*num)
 		tab = (tab - 1 + len(entries)) % len(entries)
-		sidebarTabs.Highlight(strconv.Itoa(tab)).
-			ScrollToHighlight()
+		panels.SwitchToPage(strconv.Itoa(tab))
 	}
 	nextTab := func() {
-		tab, _ := strconv.Atoi(sidebarTabs.GetHighlights()[0])
+		num := getCurrentPage(panels)
+		if num == nil {
+			return
+		}
+		tab := int(*num)
 		tab = (tab + 1) % len(entries)
-		sidebarTabs.Highlight(strconv.Itoa(tab)).
-			ScrollToHighlight()
+		panels.SwitchToPage(strconv.Itoa(tab))
 	}
 
 	// We want to start on the favourites page since we like those the best not the super
@@ -72,10 +86,6 @@ func sidebarWidget(
 
 	for index, panel := range entries {
 		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == focused)
-		fmt.Fprintf(sidebarTabs, `["%d"][darkcyan]%s[white][""]`, index, common.Pad(panel.title, 1))
-		if index == 0 {
-			fmt.Fprintf(sidebarTabs, "|")
-		}
 	}
 
 	sidebar.SetBorderPadding(0, 0, 0, 0).
@@ -85,10 +95,25 @@ func sidebarWidget(
 		})
 
 	sidebar.SetDirection(tview.FlexRow).
-		AddItem(panels, 0, 1, false).
-		AddItem(sidebarTabs, 3, 0, false)
+		AddItem(panels, 0, 1, false)
 
-	sidebarTabs.Highlight(strconv.Itoa(focused))
+	panels.SwitchToPage(strconv.Itoa(focused))
 
 	return &SidebarWidget{component: sidebar}
+}
+
+func getSidebarTitle(entries []panel, e panel) string {
+	title := ""
+	for i, entry := range entries {
+		t := entry.title
+		if entry == e {
+			title += fmt.Sprintf("(%s)", t)
+		} else {
+			title += t
+		}
+		if i < len(entries)-1 {
+			title += " - "
+		}
+	}
+	return title
 }
