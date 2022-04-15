@@ -14,14 +14,12 @@ import (
 type IssuesWidget struct {
 	component *tview.TextView
 	context   *app.Context
+	repo      *domain.Repository
 }
 
 func issuesWidget(ctx *app.Context) *IssuesWidget {
 	issues := tview.NewTextView()
-	issues.SetDynamicColors(true).
-		SetBorder(true).
-		SetTitle(common.Pad("Issues", 1)).
-		SetBorderPadding(0, 0, 1, 1)
+	issues.SetDynamicColors(true)
 	return &IssuesWidget{component: issues, context: ctx}
 }
 
@@ -51,9 +49,29 @@ func (r *IssuesWidget) ScrollDown() {
 	r.component.ScrollTo(row+1, col)
 }
 
-func (r *IssuesWidget) refreshIssuesList(repo *domain.Repository) {
+func (r *IssuesWidget) SetRepo(repo *domain.Repository) {
+	r.repo = repo
+}
+
+func (r *IssuesWidget) IsEmpty() bool {
+	return false
+}
+
+func (r *IssuesWidget) Component() tview.Primitive {
+	var c interface{} = r.component
+	t, ok := c.(tview.Primitive)
+	if !ok {
+		panic("failed to cast to tview.Primitive")
+	}
+	return t
+}
+
+func (r *IssuesWidget) Refresh() {
 	r.component.Clear()
-	issues := repo.Issues.Nodes
+	if r.repo == nil {
+		return
+	}
+	issues := r.repo.Issues.Nodes
 	if len(issues) == 0 {
 		r.component.SetText("No issues found").SetTextAlign(tview.AlignCenter)
 	} else {

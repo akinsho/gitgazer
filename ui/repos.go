@@ -45,8 +45,13 @@ func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _
 	}
 }
 
-func (r *RepoWidget) Component() *tview.List {
-	return r.component
+func (r *RepoWidget) Component() tview.Primitive {
+	var c interface{} = r.component
+	t, ok := c.(tview.Primitive)
+	if !ok {
+		panic("failed to cast to tview.Primitive")
+	}
+	return t
 }
 
 func (r *RepoWidget) IsEmpty() bool {

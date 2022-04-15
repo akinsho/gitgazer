@@ -63,11 +63,7 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 	}
 }
 
-func panelWidget(
-	ctx *app.Context,
-	focused int,
-	entries []panel,
-) *SidebarWidget {
+func panelWidget(ctx *app.Context, focused int, entries []panel) *SidebarWidget {
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
 	panels.SetChangedFunc(onPanelChange(entries, panels, sidebar))

@@ -60,8 +60,13 @@ func (f *FavouritesWidget) IsEmpty() bool {
 	return github.FavouriteRepositoryCount() == 0
 }
 
-func (f *FavouritesWidget) Component() *tview.List {
-	return f.component
+func (f *FavouritesWidget) Component() tview.Primitive {
+	var c interface{} = f.component
+	t, ok := c.(tview.Primitive)
+	if !ok {
+		panic("failed to cast to tview.Primitive")
+	}
+	return t
 }
 
 func favouritesWidget(ctx *app.Context) *FavouritesWidget {

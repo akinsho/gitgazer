@@ -151,8 +151,12 @@ func throttledListUpdate(duration time.Duration) func(*domain.Repository) {
 			timer.Stop()
 			timer = nil
 		}
+		// TODO: this setter only exists because repo cannot be passed to
+		// issues directly as the Widget type does not expect Refresh to have an argument
+		// and the argument cannot be sufficiently generic anyway.
 		timer = time.AfterFunc(duration, func() {
-			view.issues.refreshIssuesList(repo)
+			view.issues.SetRepo(repo)
+			view.issues.Refresh()
 		})
 	}
 }
@@ -231,25 +235,26 @@ func setupTheme(_ *app.Config) {
 	tview.Styles = theme
 }
 
-func layoutWidget(context *app.Context) *Layout {
+func layoutWidget(ctx *app.Context) *Layout {
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
 	frame := tview.NewFlex().SetDirection(tview.FlexRow)
 	layout := tview.NewFlex()
 
-	favourites := favouritesWidget(context)
-	repos := reposWidget(context)
-	issues := issuesWidget(context)
+	favourites := favouritesWidget(ctx)
+	repos := reposWidget(ctx)
+	issues := issuesWidget(ctx)
 
-	sidebar := repositoryPanelWidget(favourites, context, repos)
+	sidebar := repositoryPanelWidget(favourites, ctx, repos)
+	issuesPanel := panelWidget(ctx, 0, []panel{{title: "Issues", widget: issues}})
 
 	description.SetDynamicColors(true).SetBorder(true)
 
 	main.SetDirection(tview.FlexRow)
 	main.
 		AddItem(description, 0, 1, false).
-		AddItem(issues.component, 0, 3, false)
+		AddItem(issuesPanel.component, 0, 3, false)
 
 	layout.
 		AddItem(sidebar.component, 0, 1, true).
