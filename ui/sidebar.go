@@ -4,7 +4,6 @@ import (
 	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/common"
 	"fmt"
-	"strconv"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -18,15 +17,26 @@ type SidebarWidget struct {
 type panel struct {
 	title  string
 	widget Widget
+	id     string
+}
+
+func findCurrenPageByID(entries []panel, id string) int {
+	for i, entry := range entries {
+		if entry.id == id {
+			return i
+		}
+	}
+	return -1
 }
 
 func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func() {
 	return func() {
-		num := getCurrentPage(pages)
-		if num == nil {
+		page, _ := pages.GetFrontPage()
+		index := findCurrenPageByID(panels, page)
+		if index == -1 {
 			return
 		}
-		e := panels[*num]
+		e := panels[index]
 		title := getSidebarTitle(panels, e)
 		sidebar.SetTitle(common.Pad(title, 1)).
 			SetTitleColor(tcell.ColorBlue).
@@ -36,13 +46,21 @@ func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func
 	}
 }
 
-func getCurrentPage(pages *tview.Pages) *int64 {
-	name, _ := pages.GetFrontPage()
-	num, err := strconv.ParseInt(name, 10, 0)
-	if err != nil {
-		return nil
+func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
+	return func() {
+		page, _ := panels.GetFrontPage()
+		index := findCurrenPageByID(entries, page)
+		if index == -1 {
+			return
+		}
+		tab := index
+		if reverse {
+			tab = (tab - 1 + len(entries)) % len(entries)
+		} else {
+			tab = (tab + 1) % len(entries)
+		}
+		panels.SwitchToPage(entries[tab].id)
 	}
-	return &num
 }
 
 func sidebarWidget(
@@ -51,41 +69,23 @@ func sidebarWidget(
 	favourites *FavouritesWidget,
 ) *SidebarWidget {
 	entries := []panel{
-		{title: "Starred", widget: repos},
-		{title: "Favourites", widget: favourites},
+		{id: "starred", title: "Starred", widget: repos},
+		{id: "favourites", title: "Favourites", widget: favourites},
 	}
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
 	panels.SetChangedFunc(onPanelChange(entries, panels, sidebar))
 
-	previousTab := func() {
-		num := getCurrentPage(panels)
-		if num == nil {
-			return
-		}
-		tab := int(*num)
-		tab = (tab - 1 + len(entries)) % len(entries)
-		panels.SwitchToPage(strconv.Itoa(tab))
-	}
-	nextTab := func() {
-		num := getCurrentPage(panels)
-		if num == nil {
-			return
-		}
-		tab := int(*num)
-		tab = (tab + 1) % len(entries)
-		panels.SwitchToPage(strconv.Itoa(tab))
-	}
+	previousTab := findNext(panels, entries, true)
+	nextTab := findNext(panels, entries, false)
 
-	// We want to start on the favourites page since we like those the best not the super
-	// long list of all repos we've starred.
 	focused := 0
 	if !favourites.IsEmpty() {
 		focused = 1
 	}
 
 	for index, panel := range entries {
-		panels.AddPage(strconv.Itoa(index), panel.widget.Component(), true, index == focused)
+		panels.AddPage(panel.id, panel.widget.Component(), true, index == focused)
 	}
 
 	sidebar.SetBorderPadding(0, 0, 0, 0).
@@ -97,7 +97,7 @@ func sidebarWidget(
 	sidebar.SetDirection(tview.FlexRow).
 		AddItem(panels, 0, 1, false)
 
-	panels.SwitchToPage(strconv.Itoa(focused))
+	panels.SwitchToPage(entries[focused].id)
 
 	return &SidebarWidget{component: sidebar}
 }
