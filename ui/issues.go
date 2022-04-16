@@ -54,6 +54,9 @@ func (r *IssuesWidget) SetRepo(repo *domain.Repository) {
 }
 
 func (r *IssuesWidget) IsEmpty() bool {
+	if r.repo == nil || len(r.repo.Issues.Nodes) == 0 {
+		return true
+	}
 	return false
 }
 
