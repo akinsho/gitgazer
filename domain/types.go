@@ -54,6 +54,8 @@ type Label struct {
 type PullRequest struct {
 	Title string
 	ID    string
+	Body  string
+	State string
 }
 
 type RepositoryOwner struct {
