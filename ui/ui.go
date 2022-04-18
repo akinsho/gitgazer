@@ -32,14 +32,22 @@ type Layout struct {
 	description *tview.TextView
 	repos       *RepoWidget
 	issues      *IssuesWidget
+	prs         *PullRequestsWidget
 	favourites  *FavouritesWidget
 }
 
-func (l *Layout) ActiveList() *tview.List {
+func (l *Layout) ActiveList() Widget {
 	if view.favourites.component.HasFocus() {
-		return l.favourites.component
+		return l.favourites
 	}
-	return l.repos.component
+	return l.repos
+}
+
+func (l *Layout) ActiveDetails() TextWidget {
+	if view.issues.component.HasFocus() {
+		return view.issues
+	}
+	return view.prs
 }
 
 //--------------------------------------------------------------------------------------------------
