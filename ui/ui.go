@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/glamour"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -127,6 +128,14 @@ func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
 
 func createHeader(width int) string {
 	return strings.Repeat(headerChar, width)
+}
+
+func convertToMarkdown(body string) string {
+	body, err := glamour.Render(body, "dark")
+	if err != nil {
+		return body
+	}
+	return tview.TranslateANSI(body)
 }
 
 func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {

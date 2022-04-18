@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/glamour"
 	"github.com/rivo/tview"
 )
 
@@ -87,7 +86,7 @@ func (r *IssuesWidget) Refresh() {
 			if issue.Closed {
 				issueColor = "red"
 			}
-			body := getIssueBodyMarkdown(issue)
+			body := convertToMarkdown(issue.Body)
 			previous := r.component.GetText(false)
 			list := []string{
 				previous,
@@ -120,14 +119,4 @@ func removeBlankLines(lines []string) []string {
 		}
 	}
 	return filtered
-}
-
-func getIssueBodyMarkdown(issue *domain.Issue) string {
-	body, err := glamour.Render(issue.Body, "dark")
-	if err != nil {
-		body = issue.Body
-	} else {
-		body = tview.TranslateANSI(body)
-	}
-	return body
 }
