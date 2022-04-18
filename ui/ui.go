@@ -225,13 +225,20 @@ func repositoryPanelWidget(
 	return sidebar
 }
 
-// setupTheme sets up the theme for the application
-// which can be derived from the app's config
+func repositoryDetailsPanelWidget(issues *IssuesWidget, prs *PullRequestsWidget) *SidebarWidget {
+	return panelWidget(nil, 0, []panel{
+		{id: "issues", title: "Issues", widget: issues},
+		{id: "prs", title: "PRs", widget: prs},
+	})
+}
+
+// setupTheme sets up the theme for the application which can be derived from the app's config
 // TODO: pull colour values from config
 func setupTheme(_ *app.Config) {
 	theme := tview.Theme{
 		TitleColor:                  tcell.ColorBlue,
-		MoreContrastBackgroundColor: tcell.ColorGray,
+		MoreContrastBackgroundColor: tcell.ColorRebeccaPurple,
+		ContrastBackgroundColor:     tcell.ColorGreen,
 	}
 	tview.Styles = theme
 }
@@ -246,16 +253,17 @@ func layoutWidget(ctx *app.Context) *Layout {
 	favourites := favouritesWidget(ctx)
 	repos := reposWidget(ctx)
 	issues := issuesWidget(ctx)
+	prs := pullRequestsWidget(ctx)
 
 	sidebar := repositoryPanelWidget(favourites, ctx, repos)
-	issuesPanel := panelWidget(ctx, 0, []panel{{title: "Issues", widget: issues}})
+	detailsPanel := repositoryDetailsPanelWidget(issues, prs)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
 	main.SetDirection(tview.FlexRow)
 	main.
 		AddItem(description, 0, 1, false).
-		AddItem(issuesPanel.component, 0, 3, false)
+		AddItem(detailsPanel.component, 0, 3, false)
 
 	layout.
 		AddItem(sidebar.component, 0, 1, true).
