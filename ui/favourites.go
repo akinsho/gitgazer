@@ -12,12 +12,12 @@ type FavouritesWidget struct {
 	context   *app.Context
 }
 
-func updateFavouriteChange(index int, _, _ string, _ rune) {
-	repo := github.GetFavouriteRepositoryByIndex(index)
+func (f *FavouritesWidget) OnChanged(index int, _, _ string, _ rune) {
+	repo := f.context.State.Favourites[index]
 	if repo == nil {
 		return
 	}
-	updateRepositoryList(repo)
+	updateRepositoryList(f.context, repo)
 }
 
 // refreshFavouritesList fetches all saved repositories from the database and
@@ -28,6 +28,7 @@ func (f *FavouritesWidget) Refresh() {
 		openErrorModal(err)
 		return
 	}
+	f.context.SetFavourites(favourites)
 	if f.component.GetItemCount() > 0 {
 		f.component.Clear()
 	}
@@ -57,7 +58,7 @@ func (f *FavouritesWidget) IsEmpty() bool {
 	if len(favs) > 0 {
 		return false
 	}
-	return github.FavouriteRepositoryCount() == 0
+	return len(favs) == 0
 }
 
 func (f *FavouritesWidget) Component() tview.Primitive {
@@ -70,9 +71,11 @@ func (f *FavouritesWidget) Component() tview.Primitive {
 }
 
 func favouritesWidget(ctx *app.Context) *FavouritesWidget {
+	widget := &FavouritesWidget{context: ctx}
 	favourites := listWidget(ListOptions{
 		onSelected: func(int, string, string, rune) {},
-		onChanged:  updateFavouriteChange,
+		onChanged:  widget.OnChanged,
 	})
-	return &FavouritesWidget{favourites, ctx}
+	widget.component = favourites
+	return widget
 }

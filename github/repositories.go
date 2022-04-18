@@ -9,12 +9,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	repositories   []*domain.Repository
-	favourites     []*domain.Repository
-	issuesByRepoID = make(map[int64][]*domain.Issue)
-)
-
 // Fetch the users starred repositories from github
 // ```
 // query {
@@ -44,18 +38,11 @@ var (
 // }
 // ```
 func ListStarredRepositories(client *api.Client) ([]*domain.Repository, error) {
-	//  TODO: We need a way to invalidate previous fetched repositories
-	// and refetch but this is necessary for now to prevent DDOSing the API.
-	if len(repositories) > 0 {
-		return repositories, nil
-	}
 	repos, err := client.ListStarredRepositories()
 	if err != nil {
 		return nil, err
 	}
-	// FIXME: can we do better than relying on these globals
-	repositories = repos
-	return repositories, nil
+	return repos, nil
 }
 
 func fetchFavouriteRepo(
@@ -93,26 +80,17 @@ func RetrieveFavouriteRepositories(ctx *app.Context) ([]*domain.Repository, erro
 		repos = append(repos, result)
 	}
 
-	// FIXME: can we do better than relying on these globals
-	favourites = repos
 	return repos, nil
 }
 
-func GetFavouriteByRepositoryID(
-	ctx *app.Context,
+func GetFavouriteByRepositoryID(ctx *app.Context,
 	id string,
 ) (favourite *domain.FavouriteRepository, err error) {
 	return ctx.DB.GetFavouriteByRepoID(id)
 }
 
-func GetRepositoryByIndex(index int) *domain.Repository {
-	if len(repositories) > 0 {
-		return repositories[index]
-	}
-	return nil
-}
-
-func GetFavouriteRepositoryByIndex(index int) *domain.Repository {
+func GetFavouriteRepositoryByIndex(ctx *app.Context, index int) *domain.Repository {
+	favourites := ctx.State.Favourites
 	if favourites != nil && len(favourites) == 0 {
 		return nil
 	}
@@ -127,16 +105,8 @@ func ListSavedFavourites(ctx *app.Context) (repos []*domain.FavouriteRepository,
 	return
 }
 
-func FavouriteRepositoryCount() int {
-	return len(favourites)
-}
-
-func StarredRepositoryCount() int {
-	return len(repositories)
-}
-
 func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err error) {
-	repo := GetRepositoryByIndex(index)
+	repo := ctx.State.Selected
 	if repo == nil {
 		return
 	}
@@ -148,12 +118,12 @@ func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err err
 }
 
 func UnfavouriteRepo(ctx *app.Context, index int) (err error) {
-	repo := GetRepositoryByIndex(index)
+	repo := ctx.State.Selected
 	if repo == nil {
 		return
 	}
 	err = ctx.DB.DeleteByRepoID(repo.ID)
-	favourites = common.RemoveIndex(favourites, index)
+	ctx.SetFavourites(common.RemoveIndex(ctx.State.Favourites, index))
 	if err != nil {
 		return err
 	}

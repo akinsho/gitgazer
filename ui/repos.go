@@ -18,8 +18,8 @@ var heartIcon = "❤"
 
 // isFavourite checks if the repository is a favourite
 // by seeing if the database contains a match by ID
-func isFavourite(ctx *app.Context, repo *domain.Repository) bool {
-	r, err := github.GetFavouriteByRepositoryID(ctx, repo.ID)
+func isFavourite(ctx *app.Context) bool {
+	r, err := github.GetFavouriteByRepositoryID(ctx, ctx.State.Selected.ID)
 	if err != nil {
 		return false
 	}
@@ -27,8 +27,7 @@ func isFavourite(ctx *app.Context, repo *domain.Repository) bool {
 }
 
 func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
-	repo := github.GetRepositoryByIndex(index)
-	if !isFavourite(ctx, repo) {
+	if !isFavourite(ctx) {
 		err := github.FavouriteRepo(ctx, index, mainText, secondaryText)
 		if err != nil {
 			openErrorModal(err)
@@ -41,7 +40,7 @@ func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _
 			openErrorModal(err)
 			return
 		}
-		go view.repos.removeFavouriteIndicator(index, repo)
+		go view.repos.removeFavouriteIndicator(index, ctx.State.Selected)
 	}
 }
 
@@ -55,7 +54,7 @@ func (r *RepoWidget) Component() tview.Primitive {
 }
 
 func (r *RepoWidget) IsEmpty() bool {
-	return github.StarredRepositoryCount() == 0
+	return len(r.context.State.Starred) == 0
 }
 
 func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
@@ -70,6 +69,7 @@ func (r *RepoWidget) Refresh() {
 		openErrorModal(err)
 		return
 	}
+	r.context.SetStarred(repositories)
 	r.component.Clear()
 	if len(repositories) == 0 {
 		r.component.AddItem("No repositories found", "", 0, nil)
@@ -98,28 +98,29 @@ func (r *RepoWidget) addFavouriteIndicators() {
 }
 
 func (r *RepoWidget) addFavouriteIndicator(i int) {
-	if isFavourite(r.context, github.GetRepositoryByIndex(i)) {
+	if isFavourite(r.context) {
 		main, secondary := r.component.GetItemText(i)
 		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
 }
 
-func updateStarredList(index int, _, _ string, _ rune) {
-	repo := github.GetRepositoryByIndex(index)
+func (r *RepoWidget) OnChanged(index int, _, _ string, _ rune) {
+	repo := r.context.GetStarred(index)
 	if repo == nil {
 		return
 	}
-	updateRepositoryList(repo)
+	updateRepositoryList(r.context, repo)
 }
 
 func reposWidget(ctx *app.Context) *RepoWidget {
+	widget := &RepoWidget{context: ctx}
 	repos := listWidget(ListOptions{
-		onChanged: updateStarredList,
+		onChanged: widget.OnChanged,
 		onSelected: func(i int, s1, s2 string, r rune) {
 			onRepoSelect(ctx, i, s1, s2, r)
 		},
 	})
 	repos.AddItem("Loading repos...", "", 0, nil)
-
-	return &RepoWidget{component: repos, context: ctx}
+	widget.component = repos
+	return widget
 }

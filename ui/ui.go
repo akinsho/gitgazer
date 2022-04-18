@@ -143,9 +143,10 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 
 // throttledListUpdate updates the visible issue details in the issue widget when a user
 // has paused over a repository in the list for more than interval time
-func throttledListUpdate(duration time.Duration) func(*domain.Repository) {
+func throttledListUpdate(duration time.Duration) func(*app.Context, *domain.Repository) {
 	var timer *time.Timer
-	return func(repo *domain.Repository) {
+	return func(ctx *app.Context, repo *domain.Repository) {
+		ctx.SetSelected(repo)
 		setRepoDescription(repo)
 		if timer != nil {
 			timer.Stop()
@@ -155,7 +156,6 @@ func throttledListUpdate(duration time.Duration) func(*domain.Repository) {
 		// issues directly as the Widget type does not expect Refresh to have an argument
 		// and the argument cannot be sufficiently generic anyway.
 		timer = time.AfterFunc(duration, func() {
-			view.issues.SetRepo(repo)
 			view.issues.Refresh()
 		})
 	}

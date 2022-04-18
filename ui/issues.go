@@ -14,7 +14,6 @@ import (
 type IssuesWidget struct {
 	component *tview.TextView
 	context   *app.Context
-	repo      *domain.Repository
 }
 
 func issuesWidget(ctx *app.Context) *IssuesWidget {
@@ -49,12 +48,9 @@ func (r *IssuesWidget) ScrollDown() {
 	r.component.ScrollTo(row+1, col)
 }
 
-func (r *IssuesWidget) SetRepo(repo *domain.Repository) {
-	r.repo = repo
-}
-
 func (r *IssuesWidget) IsEmpty() bool {
-	if r.repo == nil || len(r.repo.Issues.Nodes) == 0 {
+	selected := r.context.State.Selected
+	if selected == nil || len(selected.Issues.Nodes) == 0 {
 		return true
 	}
 	return false
@@ -71,10 +67,10 @@ func (r *IssuesWidget) Component() tview.Primitive {
 
 func (r *IssuesWidget) Refresh() {
 	r.component.Clear()
-	if r.repo == nil {
+	if r.context.State.Selected == nil {
 		return
 	}
-	issues := r.repo.Issues.Nodes
+	issues := r.context.State.Selected.Issues.Nodes
 	if len(issues) == 0 {
 		r.component.SetText("No issues found").SetTextAlign(tview.AlignCenter)
 	} else {
