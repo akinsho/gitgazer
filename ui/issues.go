@@ -16,8 +16,7 @@ type IssuesWidget struct {
 }
 
 func issuesWidget(ctx *app.Context) *IssuesWidget {
-	issues := tview.NewTextView()
-	issues.SetDynamicColors(true)
+	issues := tview.NewTextView().SetDynamicColors(true)
 	return &IssuesWidget{component: issues, context: ctx}
 }
 
