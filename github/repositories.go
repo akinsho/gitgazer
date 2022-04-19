@@ -71,7 +71,7 @@ func RetrieveFavouriteRepositories(ctx *app.Context) ([]*domain.Repository, erro
 			return fetchFavouriteRepo(ctx.Client, repo, results)
 		})
 	}
-	if g.Wait(); err != nil {
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 	close(results)
