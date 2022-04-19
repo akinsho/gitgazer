@@ -20,6 +20,10 @@ func (f *FavouritesWidget) OnChanged(index int, _, _ string, _ rune) {
 	updateRepositoryList(f.context, repo)
 }
 
+func (f *FavouritesWidget) SetSelected(i int) {
+	f.component.SetCurrentItem(i)
+}
+
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
 func (f *FavouritesWidget) Refresh() {

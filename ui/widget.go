@@ -8,6 +8,11 @@ type Widget interface {
 	IsEmpty() bool
 }
 
+type ListWidget interface {
+	Widget
+	SetSelected(int)
+}
+
 type TextWidget interface {
 	Widget
 	ScrollUp()

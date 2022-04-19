@@ -63,6 +63,10 @@ func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
 	r.component.SetItemText(i, main, secondary)
 }
 
+func (r *RepoWidget) SetSelected(i int) {
+	r.component.SetCurrentItem(i)
+}
+
 func (r *RepoWidget) Refresh() {
 	repositories, err := github.ListStarredRepositories(r.context.Client)
 	if err != nil {

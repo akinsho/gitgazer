@@ -38,13 +38,13 @@ type Layout struct {
 	favourites  *FavouritesWidget
 }
 
-func (l *Layout) ActiveList() Widget {
+func (l *Layout) ActiveList() ListWidget {
 	if view.favourites.component.HasFocus() {
 		return l.favourites
 	} else if view.repos.component.HasFocus() {
 		return l.repos
 	} else {
-		return view.sidebar.CurrentItem()
+		return view.sidebar.CurrentItem().(ListWidget)
 	}
 }
 
@@ -289,6 +289,7 @@ func focusActiveList() {
 		view.repos.Refresh()
 		UI.SetFocus(view.repos.component)
 	}
+	view.ActiveList().SetSelected(0)
 }
 
 func Setup(context *app.Context) error {
