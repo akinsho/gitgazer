@@ -140,7 +140,7 @@ func getPanelTitle(entries []panel, e panel) string {
 	for i, entry := range entries {
 		t := entry.title
 		if entry == e {
-			title += fmt.Sprintf("(%s)", t)
+			title += tview.Escape(fmt.Sprintf("[%s]", t))
 		} else {
 			title += t
 		}
