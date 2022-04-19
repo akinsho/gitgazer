@@ -195,11 +195,11 @@ func repositoryPanelWidget(
 	favourites *FavouritesWidget,
 	starred *StarredWidget,
 ) *TabbedPanelWidget {
-	leftSidebarFocused := 0
+	focused := 0
 	if !favourites.IsEmpty() {
-		leftSidebarFocused = 1
+		focused = 1
 	}
-	sidebar := panelWidget(context, leftSidebarFocused, []panel{
+	sidebar := panelWidget(context, focused, []panel{
 		{id: domain.StarredRepositoriesPanel.String(), title: "Starred", widget: starred},
 		{id: domain.FavouriteRepositoriesPanel.String(), title: "Favourites", widget: favourites},
 	})
