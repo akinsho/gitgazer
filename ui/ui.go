@@ -189,8 +189,8 @@ func listWidget(opts ListOptions) *tview.List {
 }
 
 func repositoryPanelWidget(
-	favourites *FavouritesWidget,
 	context *app.Context,
+	favourites *FavouritesWidget,
 	repos *RepoWidget,
 ) *SidebarWidget {
 	leftSidebarFocused := 0
@@ -204,8 +204,17 @@ func repositoryPanelWidget(
 	return sidebar
 }
 
-func repositoryDetailsPanelWidget(issues *IssuesWidget, prs *PullRequestsWidget) *SidebarWidget {
-	return panelWidget(nil, 0, []panel{
+func repositoryDetailsPanelWidget(
+	ctx *app.Context,
+	issues *IssuesWidget,
+	prs *PullRequestsWidget,
+) *SidebarWidget {
+	focused := 0
+	preferred := ctx.Config.UserConfig.Panels.Details.Preferred
+	if preferred == "prs" {
+		focused = 1
+	}
+	return panelWidget(nil, focused, []panel{
 		{id: "issues", title: "Issues", widget: issues},
 		{id: "prs", title: "PRs", widget: prs},
 	})
@@ -234,8 +243,8 @@ func layoutWidget(ctx *app.Context) *Layout {
 	issues := issuesWidget(ctx)
 	prs := pullRequestsWidget(ctx)
 
-	sidebar := repositoryPanelWidget(favourites, ctx, repos)
-	details := repositoryDetailsPanelWidget(issues, prs)
+	sidebar := repositoryPanelWidget(ctx, favourites, repos)
+	details := repositoryDetailsPanelWidget(ctx, issues, prs)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
