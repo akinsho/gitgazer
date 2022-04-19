@@ -75,6 +75,7 @@ func (r *IssuesWidget) Refresh() {
 	} else {
 		_, _, width, _ := r.component.GetInnerRect()
 		header := createHeader(width)
+		lines := []string{}
 		for _, issue := range issues {
 			issueNumber := fmt.Sprintf("#%d", issue.GetNumber())
 			title := common.TruncateText(issue.GetTitle(), 80, true)
@@ -87,9 +88,7 @@ func (r *IssuesWidget) Refresh() {
 				issueColor = "red"
 			}
 			body := convertToMarkdown(issue.Body)
-			previous := r.component.GetText(false)
-			list := []string{
-				previous,
+			lines = append(lines, []string{
 				header,
 				fmt.Sprintf(
 					"[%s]%s[-::bu] %s %s - %s[-:-:-]",
@@ -103,10 +102,10 @@ func (r *IssuesWidget) Refresh() {
 				fmt.Sprintf("Created at: %s", issue.CreatedAt.Format("02-01-2006 15:04:05")),
 				drawLabels(issue.Labels.Nodes),
 				body,
-			}
-			lines := removeBlankLines(list)
-			r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
+			}...)
 		}
+		lines = removeBlankLines(lines)
+		r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 	}
 	UI.Draw()
 }
