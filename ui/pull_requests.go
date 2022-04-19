@@ -28,6 +28,9 @@ func (p *PullRequestsWidget) Component() tview.Primitive {
 
 func (p *PullRequestsWidget) Refresh() {
 	p.component.Clear()
+	if p.context.State.Selected == nil {
+		return
+	}
 	prs := []string{}
 	_, _, w, _ := p.component.GetInnerRect()
 	hr := createHeader(w)
