@@ -105,7 +105,7 @@ func ListSavedFavourites(ctx *app.Context) (repos []*domain.FavouriteRepository,
 	return
 }
 
-func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err error) {
+func FavouriteSelectedRepo(ctx *app.Context) (err error) {
 	repo := ctx.State.Selected
 	if repo == nil {
 		return
@@ -117,7 +117,7 @@ func FavouriteRepo(ctx *app.Context, index int, main, secondary string) (err err
 	return nil
 }
 
-func UnfavouriteRepo(ctx *app.Context, index int) (err error) {
+func UnfavouriteSelected(ctx *app.Context, index int) (err error) {
 	repo := ctx.State.Selected
 	if repo == nil {
 		return

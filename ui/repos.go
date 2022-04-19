@@ -28,14 +28,14 @@ func isFavourite(ctx *app.Context) bool {
 
 func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
 	if !isFavourite(ctx) {
-		err := github.FavouriteRepo(ctx, index, mainText, secondaryText)
+		err := github.FavouriteSelectedRepo(ctx)
 		if err != nil {
 			openErrorModal(err)
 			return
 		}
 		go view.repos.addFavouriteIndicator(index)
 	} else {
-		err := github.UnfavouriteRepo(ctx, index)
+		err := github.UnfavouriteSelected(ctx, index)
 		if err != nil {
 			openErrorModal(err)
 			return
