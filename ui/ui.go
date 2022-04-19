@@ -131,10 +131,8 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	name := repo.GetName()
 	description := repo.GetDescription()
 	showSecondaryText := false
-	if name != "" {
-		if len(description) > 0 {
-			showSecondaryText = true
-		}
+	if len(strings.TrimSpace(description)) > 0 {
+		showSecondaryText = true
 	}
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
