@@ -53,7 +53,7 @@ func (p *PullRequestsWidget) Refresh() {
 			list := []string{hr, pr.Title + status, hr, author, text}
 			prs = append(prs, list...)
 		}
-		p.component.SetText(strings.Join(prs, "\n")).SetTextAlign(tview.AlignLeft)
+		p.component.SetText(strings.Join(prs, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 	}
 }
 
