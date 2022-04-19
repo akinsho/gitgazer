@@ -30,7 +30,7 @@ type Layout struct {
 	main        *tview.Flex
 	description *tview.TextView
 	details     *SidebarWidget
-	repos       *RepoWidget
+	repos       *StarredWidget
 	issues      *IssuesWidget
 	prs         *PullRequestsWidget
 	sidebar     *SidebarWidget
@@ -191,14 +191,14 @@ func listWidget(opts ListOptions) *tview.List {
 func repositoryPanelWidget(
 	context *app.Context,
 	favourites *FavouritesWidget,
-	repos *RepoWidget,
+	starred *StarredWidget,
 ) *SidebarWidget {
 	leftSidebarFocused := 0
 	if !favourites.IsEmpty() {
 		leftSidebarFocused = 1
 	}
 	sidebar := panelWidget(context, leftSidebarFocused, []panel{
-		{id: domain.StarredRepositoriesPanel.String(), title: "Starred", widget: repos},
+		{id: domain.StarredRepositoriesPanel.String(), title: "Starred", widget: starred},
 		{id: domain.FavouriteRepositoriesPanel.String(), title: "Favourites", widget: favourites},
 	})
 	return sidebar

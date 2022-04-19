@@ -9,7 +9,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type RepoWidget struct {
+type StarredWidget struct {
 	component *tview.List
 	context   *app.Context
 }
@@ -44,7 +44,7 @@ func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _
 	}
 }
 
-func (r *RepoWidget) Component() tview.Primitive {
+func (r *StarredWidget) Component() tview.Primitive {
 	var c interface{} = r.component
 	t, ok := c.(tview.Primitive)
 	if !ok {
@@ -53,25 +53,24 @@ func (r *RepoWidget) Component() tview.Primitive {
 	return t
 }
 
-func (r *RepoWidget) IsEmpty() bool {
+func (r *StarredWidget) IsEmpty() bool {
 	return len(r.context.State.Starred) == 0
 }
 
-func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
+func (r *StarredWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
 	_, secondary := r.component.GetItemText(i)
 	main, _, _, _ := repositoryEntry(repo)
 	r.component.SetItemText(i, main, secondary)
 }
 
-func (r *RepoWidget) SetSelected(i int) {
+func (r *StarredWidget) SetSelected(i int) {
 	r.component.SetCurrentItem(i)
 }
 
-func (r *RepoWidget) Refresh() {
+func (r *StarredWidget) Refresh() error {
 	repositories, err := github.ListStarredRepositories(r.context.Client)
 	if err != nil {
-		openErrorModal(err)
-		return
+		return err
 	}
 	r.context.SetStarred(repositories)
 	r.component.Clear()
@@ -91,24 +90,25 @@ func (r *RepoWidget) Refresh() {
 	}
 	view.repos.addFavouriteIndicators()
 	UI.Draw()
+	return nil
 }
 
 // addFavouriteIndicators loops through all repositories and if they have been previously
 // favourited, adds a heart icon to the end of the name.
-func (r *RepoWidget) addFavouriteIndicators() {
+func (r *StarredWidget) addFavouriteIndicators() {
 	for i := 0; i < r.component.GetItemCount(); i++ {
 		go r.addFavouriteIndicator(i)
 	}
 }
 
-func (r *RepoWidget) addFavouriteIndicator(i int) {
+func (r *StarredWidget) addFavouriteIndicator(i int) {
 	if isFavourite(r.context) {
 		main, secondary := r.component.GetItemText(i)
 		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
 }
 
-func (r *RepoWidget) OnChanged(index int, _, _ string, _ rune) {
+func (r *StarredWidget) OnChanged(index int, _, _ string, _ rune) {
 	repo := r.context.GetStarred(index)
 	if repo == nil {
 		return
@@ -116,8 +116,8 @@ func (r *RepoWidget) OnChanged(index int, _, _ string, _ rune) {
 	updateRepositoryList(r.context, repo)
 }
 
-func reposWidget(ctx *app.Context) *RepoWidget {
-	widget := &RepoWidget{context: ctx}
+func reposWidget(ctx *app.Context) *StarredWidget {
+	widget := &StarredWidget{context: ctx}
 	repos := listWidget(ListOptions{
 		onChanged: widget.OnChanged,
 		onSelected: func(i int, s1, s2 string, r rune) {
