@@ -65,7 +65,10 @@ func InitConfig() (*Config, error) {
 		tokenPath:      filepath.Join(dir, tokenFile),
 		StoragePath:    filepath.Join(dir, StoragePath),
 	}
-	config.ensureDirectory()
+	err = config.ensureDirectory()
+	if err != nil {
+		return nil, err
+	}
 	if !config.exists() {
 		config.UserConfig, err = writeConfig(config.configFilepath, defaults.UserConfig)
 	} else {
@@ -111,10 +114,14 @@ func readConfig(path string, config *UserConfig) (*UserConfig, error) {
 	return config, nil
 }
 
-func (c *Config) ensureDirectory() {
+func (c *Config) ensureDirectory() error {
 	if _, err := os.Stat(c.directory); errors.Is(err, os.ErrNotExist) {
-		os.MkdirAll(c.directory, 0700)
+		err := os.MkdirAll(c.directory, 0700)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (c *Config) exists() bool {
