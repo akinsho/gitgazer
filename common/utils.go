@@ -45,6 +45,9 @@ func throttle(f func(), d time.Duration) func() {
 }
 
 func RemoveIndex[T any](s []T, index int) []T {
+	if index < 0 || index >= len(s)-1 {
+		return s
+	}
 	ret := make([]T, 0)
 	ret = append(ret, s[:index]...)
 	return append(ret, s[index+1:]...)
