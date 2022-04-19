@@ -198,8 +198,8 @@ func repositoryPanelWidget(
 		leftSidebarFocused = 1
 	}
 	sidebar := panelWidget(context, leftSidebarFocused, []panel{
-		{id: "starred", title: "Starred", widget: repos},
-		{id: "favourites", title: "Favourites", widget: favourites},
+		{id: domain.StarredRepositoriesPanel.String(), title: "Starred", widget: repos},
+		{id: domain.FavouriteRepositoriesPanel.String(), title: "Favourites", widget: favourites},
 	})
 	return sidebar
 }
@@ -215,8 +215,8 @@ func repositoryDetailsPanelWidget(
 		focused = 1
 	}
 	return panelWidget(nil, focused, []panel{
-		{id: "issues", title: "Issues", widget: issues},
-		{id: "prs", title: "PRs", widget: prs},
+		{id: domain.IssuesPanel.String(), title: "Issues", widget: issues},
+		{id: domain.PullRequestPanel.String(), title: "PRs", widget: prs},
 	})
 }
 
