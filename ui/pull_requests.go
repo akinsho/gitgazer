@@ -31,13 +31,18 @@ func (p *PullRequestsWidget) Refresh() {
 	prs := []string{}
 	_, _, w, _ := p.component.GetInnerRect()
 	hr := createHeader(w)
-	for _, pr := range p.context.State.Selected.PullRequests.Nodes {
-		text := convertToMarkdown(pr.Body)
-		author := "@" + pr.Author.Login
-		list := []string{hr, pr.Title, hr, author, text}
-		prs = append(prs, list...)
+	pullRequests := p.context.State.Selected.PullRequests.Nodes
+	if len(pullRequests) == 0 {
+		p.component.SetText("No pull requests").SetTextAlign(tview.AlignCenter)
+	} else {
+		for _, pr := range pullRequests {
+			text := convertToMarkdown(pr.Body)
+			author := "@" + pr.Author.Login
+			list := []string{hr, pr.Title, hr, author, text}
+			prs = append(prs, list...)
+		}
+		p.component.SetText(strings.Join(prs, "\n"))
 	}
-	p.component.SetText(strings.Join(prs, "\n"))
 }
 
 // scrollUp scroll the issues widget's text view up from the current position by 1 line
