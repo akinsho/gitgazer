@@ -52,10 +52,11 @@ type Label struct {
 }
 
 type PullRequest struct {
-	Title string
-	ID    string
-	Body  string
-	State string
+	Title  string
+	ID     string
+	Body   string
+	State  string
+	Author *Author
 }
 
 type RepositoryOwner struct {
