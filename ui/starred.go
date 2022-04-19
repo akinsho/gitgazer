@@ -67,7 +67,7 @@ func (r *StarredWidget) SetSelected(i int) {
 	r.component.SetCurrentItem(i)
 }
 
-func (r *StarredWidget) Refresh() error {
+func (r *StarredWidget) Refresh() (err error) {
 	repositories, err := github.ListStarredRepositories(r.context.Client)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (r *StarredWidget) Refresh() error {
 	}
 	view.repos.addFavouriteIndicators()
 	UI.Draw()
-	return nil
+	return
 }
 
 // addFavouriteIndicators loops through all repositories and if they have been previously

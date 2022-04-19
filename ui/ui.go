@@ -99,7 +99,6 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 	}
 }
 
-// openErrorModal opens a modal with the given error message
 func openErrorModal(err error) {
 	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(_ int, _ string) {
 		view.pages.SwitchToPage("main")
@@ -139,7 +138,10 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 func updateRepositoryList(ctx *app.Context, repo *domain.Repository) {
 	setRepoDescription(repo)
 	ctx.SetSelected(repo)
-	view.ActiveDetails().Refresh()
+	err := view.ActiveDetails().Refresh()
+	if err != nil {
+		openErrorModal(err)
+	}
 }
 
 func setRepoDescription(repo *domain.Repository) {
@@ -277,14 +279,20 @@ func layoutWidget(ctx *app.Context) *Layout {
 }
 
 func focusActiveList() {
+	var err error
 	if !view.favourites.IsEmpty() {
-		view.favourites.Refresh()
-		UI.SetFocus(view.favourites.component)
+		err = view.favourites.Refresh()
 	} else {
-		view.repos.Refresh()
-		UI.SetFocus(view.repos.component)
+		err = view.repos.Refresh()
 	}
-	view.ActiveList().SetSelected(0)
+	if err != nil {
+		UI.QueueUpdate(func() {
+			openErrorModal(err)
+		})
+	} else {
+		UI.SetFocus(view.ActiveList().Component())
+		view.ActiveList().SetSelected(0)
+	}
 }
 
 func Setup(context *app.Context) error {

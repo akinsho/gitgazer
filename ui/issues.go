@@ -64,7 +64,7 @@ func (r *IssuesWidget) Component() tview.Primitive {
 	return t
 }
 
-func (r *IssuesWidget) Refresh() {
+func (r *IssuesWidget) Refresh() (err error) {
 	r.component.Clear()
 	if r.context.State.Selected == nil {
 		return
@@ -108,6 +108,7 @@ func (r *IssuesWidget) Refresh() {
 		r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 	}
 	UI.Draw()
+	return
 }
 
 func removeBlankLines(lines []string) []string {

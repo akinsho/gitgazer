@@ -3,7 +3,7 @@ package ui
 import "github.com/rivo/tview"
 
 type Widget interface {
-	Refresh()
+	Refresh() error
 	Component() tview.Primitive
 	IsEmpty() bool
 }

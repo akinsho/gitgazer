@@ -27,7 +27,7 @@ func (p *PullRequestsWidget) Component() tview.Primitive {
 	return t
 }
 
-func (p *PullRequestsWidget) Refresh() {
+func (p *PullRequestsWidget) Refresh() (err error) {
 	p.component.Clear()
 	if p.context.State.Selected == nil {
 		return
@@ -55,6 +55,7 @@ func (p *PullRequestsWidget) Refresh() {
 		}
 		p.component.SetText(strings.Join(prs, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 	}
+	return
 }
 
 // scrollUp scroll the issues widget's text view up from the current position by 1 line
