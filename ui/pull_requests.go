@@ -33,7 +33,8 @@ func (p *PullRequestsWidget) Refresh() {
 	hr := createHeader(w)
 	for _, pr := range p.context.State.Selected.PullRequests.Nodes {
 		text := convertToMarkdown(pr.Body)
-		list := []string{hr, pr.Title, hr, text}
+		author := "@" + pr.Author.Login
+		list := []string{hr, pr.Title, hr, author, text}
 		prs = append(prs, list...)
 	}
 	p.component.SetText(strings.Join(prs, "\n"))
