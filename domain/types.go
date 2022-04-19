@@ -56,6 +56,7 @@ type PullRequest struct {
 	ID     string
 	Body   string
 	State  string
+	Closed bool
 	Author *Author
 }
 

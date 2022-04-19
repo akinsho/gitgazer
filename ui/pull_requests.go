@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"fmt"
 	"strings"
 
 	"github.com/rivo/tview"
@@ -40,8 +41,16 @@ func (p *PullRequestsWidget) Refresh() {
 	} else {
 		for _, pr := range pullRequests {
 			text := convertToMarkdown(pr.Body)
-			author := "@" + pr.Author.Login
-			list := []string{hr, pr.Title, hr, author, text}
+			stateColor := "green"
+			if pr.Closed {
+				stateColor = "red"
+			}
+			status := fmt.Sprintf(" [%s]", stateColor) + tview.Escape(fmt.Sprintf("[%s]", pr.State)) + "[-:-:-]"
+			author := ""
+			if pr.Author != nil && pr.Author.Login != "" {
+				author += "[::bu]@" + pr.Author.Login + "[::-]"
+			}
+			list := []string{hr, pr.Title + status, hr, author, text}
 			prs = append(prs, list...)
 		}
 		p.component.SetText(strings.Join(prs, "\n")).SetTextAlign(tview.AlignLeft)
