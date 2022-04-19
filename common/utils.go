@@ -2,7 +2,6 @@ package common
 
 import (
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
@@ -28,20 +27,6 @@ func TruncateText(str string, max int, ellipsis bool) string {
 	}
 
 	return string([]rune(str)[:max]) + suffix
-}
-
-func throttle(f func(), d time.Duration) func() {
-	shouldWait := false
-	return func() {
-		if !shouldWait {
-			f()
-			shouldWait = true
-			go func() {
-				<-time.After(d)
-				shouldWait = false
-			}()
-		}
-	}
 }
 
 func RemoveIndex[T any](s []T, index int) []T {
