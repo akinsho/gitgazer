@@ -30,24 +30,32 @@ type Layout struct {
 	layout      *tview.Flex
 	main        *tview.Flex
 	description *tview.TextView
+	details     *SidebarWidget
 	repos       *RepoWidget
 	issues      *IssuesWidget
 	prs         *PullRequestsWidget
+	sidebar     *SidebarWidget
 	favourites  *FavouritesWidget
 }
 
 func (l *Layout) ActiveList() Widget {
 	if view.favourites.component.HasFocus() {
 		return l.favourites
+	} else if view.repos.component.HasFocus() {
+		return l.repos
+	} else {
+		return view.sidebar.CurrentItem()
 	}
-	return l.repos
 }
 
 func (l *Layout) ActiveDetails() TextWidget {
 	if view.issues.component.HasFocus() {
 		return view.issues
+	} else if view.prs.component.HasFocus() {
+		return view.prs
+	} else {
+		return view.details.CurrentTextView()
 	}
-	return view.prs
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,9 +64,9 @@ func (l *Layout) ActiveDetails() TextWidget {
 
 func appInputHandler(layout *Layout, event *tcell.EventKey) *tcell.EventKey {
 	elements := []tview.Primitive{
-		layout.ActiveList(),
+		layout.ActiveList().Component(),
 		layout.description,
-		layout.issues.component,
+		layout.ActiveDetails().Component(),
 	}
 	switch event.Key() {
 	case tcell.KeyCtrlQ:
@@ -67,33 +75,6 @@ func appInputHandler(layout *Layout, event *tcell.EventKey) *tcell.EventKey {
 		cycleFocus(UI, elements, false)
 	case tcell.KeyBacktab:
 		cycleFocus(UI, elements, true)
-	}
-	return event
-}
-
-func sidebarInputHandler(
-	event *tcell.EventKey,
-	nextTab func(),
-	previousTab func(),
-) *tcell.EventKey {
-	if event.Rune() == 'j' {
-		return tcell.NewEventKey(tcell.KeyDown, 'j', tcell.ModNone)
-	} else if event.Rune() == 'k' {
-		return tcell.NewEventKey(tcell.KeyUp, 'k', tcell.ModNone)
-	} else if event.Rune() == 'l' {
-		return tcell.NewEventKey(tcell.KeyRight, 'l', tcell.ModNone)
-	} else if event.Rune() == 'h' {
-		return tcell.NewEventKey(tcell.KeyLeft, 'h', tcell.ModNone)
-	} else if event.Key() == tcell.KeyCtrlD {
-		view.issues.ScrollDown()
-	} else if event.Key() == tcell.KeyCtrlU {
-		view.issues.ScrollUp()
-	} else if event.Key() == tcell.KeyCtrlN {
-		nextTab()
-		return nil
-	} else if event.Key() == tcell.KeyCtrlP {
-		previousTab()
-		return nil
 	}
 	return event
 }
@@ -169,11 +150,8 @@ func throttledListUpdate(duration time.Duration) func(*app.Context, *domain.Repo
 			timer.Stop()
 			timer = nil
 		}
-		// TODO: this setter only exists because repo cannot be passed to
-		// issues directly as the Widget type does not expect Refresh to have an argument
-		// and the argument cannot be sufficiently generic anyway.
 		timer = time.AfterFunc(duration, func() {
-			view.issues.Refresh()
+			view.ActiveDetails().Refresh()
 		})
 	}
 }
@@ -273,14 +251,14 @@ func layoutWidget(ctx *app.Context) *Layout {
 	prs := pullRequestsWidget(ctx)
 
 	sidebar := repositoryPanelWidget(favourites, ctx, repos)
-	detailsPanel := repositoryDetailsPanelWidget(issues, prs)
+	details := repositoryDetailsPanelWidget(issues, prs)
 
 	description.SetDynamicColors(true).SetBorder(true)
 
 	main.SetDirection(tview.FlexRow)
 	main.
 		AddItem(description, 0, 1, false).
-		AddItem(detailsPanel.component, 0, 3, false)
+		AddItem(details.component, 0, 3, false)
 
 	layout.
 		AddItem(sidebar.component, 0, 1, true).
@@ -298,6 +276,9 @@ func layoutWidget(ctx *app.Context) *Layout {
 		layout:      layout,
 		repos:       repos,
 		issues:      issues,
+		sidebar:     sidebar,
+		details:     details,
+		prs:         prs,
 		favourites:  favourites,
 	}
 }

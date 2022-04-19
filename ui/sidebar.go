@@ -12,30 +12,33 @@ import (
 type SidebarWidget struct {
 	currentPanel int
 	component    *tview.Flex
+	entries      []panel
 }
 
-type panel struct {
-	title  string
-	widget Widget
-	id     string
+func (s *SidebarWidget) SetCurrentIndex(index int) {
+	s.currentPanel = index
 }
 
-func findCurrenPageByID(entries []panel, id string) int {
-	for i, entry := range entries {
-		if entry.id == id {
-			return i
-		}
+func (s *SidebarWidget) CurrentItem() Widget {
+	return s.entries[s.currentPanel].widget
+}
+
+func (s *SidebarWidget) CurrentTextView() TextWidget {
+	widget, ok := s.entries[s.currentPanel].widget.(TextWidget)
+	if !ok {
+		return nil
 	}
-	return -1
+	return widget
 }
 
-func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func() {
+func (s *SidebarWidget) OnChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func() {
 	return func() {
 		page, _ := pages.GetFrontPage()
-		index := findCurrenPageByID(panels, page)
+		index := findCurrentPageByID(panels, page)
 		if index == -1 {
 			return
 		}
+		s.SetCurrentIndex(index)
 		e := panels[index]
 		title := getPanelTitle(panels, e)
 		sidebar.SetTitle(common.Pad(title, 1)).
@@ -46,10 +49,52 @@ func onPanelChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func
 	}
 }
 
+type panel struct {
+	title  string
+	widget Widget
+	id     string
+}
+
+func sidebarInputHandler(
+	event *tcell.EventKey,
+	nextTab func(),
+	previousTab func(),
+) *tcell.EventKey {
+	if event.Rune() == 'j' {
+		return tcell.NewEventKey(tcell.KeyDown, 'j', tcell.ModNone)
+	} else if event.Rune() == 'k' {
+		return tcell.NewEventKey(tcell.KeyUp, 'k', tcell.ModNone)
+	} else if event.Rune() == 'l' {
+		return tcell.NewEventKey(tcell.KeyRight, 'l', tcell.ModNone)
+	} else if event.Rune() == 'h' {
+		return tcell.NewEventKey(tcell.KeyLeft, 'h', tcell.ModNone)
+	} else if event.Key() == tcell.KeyCtrlD {
+		view.ActiveDetails().ScrollDown()
+	} else if event.Key() == tcell.KeyCtrlU {
+		view.ActiveDetails().ScrollUp()
+	} else if event.Key() == tcell.KeyCtrlN {
+		nextTab()
+		return nil
+	} else if event.Key() == tcell.KeyCtrlP {
+		previousTab()
+		return nil
+	}
+	return event
+}
+
+func findCurrentPageByID(entries []panel, id string) int {
+	for i, entry := range entries {
+		if entry.id == id {
+			return i
+		}
+	}
+	return -1
+}
+
 func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 	return func() {
 		page, _ := panels.GetFrontPage()
-		index := findCurrenPageByID(entries, page)
+		index := findCurrentPageByID(entries, page)
 		if index == -1 {
 			return
 		}
@@ -66,7 +111,8 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 func panelWidget(ctx *app.Context, focused int, entries []panel) *SidebarWidget {
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
-	panels.SetChangedFunc(onPanelChange(entries, panels, sidebar))
+	widget := &SidebarWidget{component: sidebar, entries: entries}
+	panels.SetChangedFunc(widget.OnChange(entries, panels, sidebar))
 
 	previousTab := findNext(panels, entries, true)
 	nextTab := findNext(panels, entries, false)
@@ -86,7 +132,7 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *SidebarWidget 
 
 	panels.SwitchToPage(entries[focused].id)
 
-	return &SidebarWidget{component: sidebar}
+	return widget
 }
 
 func getPanelTitle(entries []panel, e panel) string {

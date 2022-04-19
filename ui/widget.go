@@ -7,3 +7,9 @@ type Widget interface {
 	Component() tview.Primitive
 	IsEmpty() bool
 }
+
+type TextWidget interface {
+	Widget
+	ScrollUp()
+	ScrollDown()
+}

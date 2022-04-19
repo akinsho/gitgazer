@@ -13,7 +13,7 @@ type FavouritesWidget struct {
 }
 
 func (f *FavouritesWidget) OnChanged(index int, _, _ string, _ rune) {
-	repo := f.context.State.Favourites[index]
+	repo := f.context.GetFavourite(index)
 	if repo == nil {
 		return
 	}
