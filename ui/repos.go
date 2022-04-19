@@ -58,8 +58,8 @@ func (r *RepoWidget) IsEmpty() bool {
 }
 
 func (r *RepoWidget) removeFavouriteIndicator(i int, repo *domain.Repository) {
-	main, secondary := r.component.GetItemText(i)
-	main, _, _, _ = repositoryEntry(repo)
+	_, secondary := r.component.GetItemText(i)
+	main, _, _, _ := repositoryEntry(repo)
 	r.component.SetItemText(i, main, secondary)
 }
 
