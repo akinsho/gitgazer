@@ -9,21 +9,21 @@ import (
 	"github.com/rivo/tview"
 )
 
-type SidebarWidget struct {
+type TabbedPanelWidget struct {
 	currentPanel int
 	component    *tview.Flex
 	entries      []panel
 }
 
-func (s *SidebarWidget) SetCurrentIndex(index int) {
+func (s *TabbedPanelWidget) SetCurrentIndex(index int) {
 	s.currentPanel = index
 }
 
-func (s *SidebarWidget) CurrentItem() Widget {
+func (s *TabbedPanelWidget) CurrentItem() Widget {
 	return s.entries[s.currentPanel].widget
 }
 
-func (s *SidebarWidget) CurrentTextView() TextWidget {
+func (s *TabbedPanelWidget) CurrentTextView() TextWidget {
 	widget, ok := s.entries[s.currentPanel].widget.(TextWidget)
 	if !ok {
 		return nil
@@ -31,7 +31,11 @@ func (s *SidebarWidget) CurrentTextView() TextWidget {
 	return widget
 }
 
-func (s *SidebarWidget) OnChange(panels []panel, pages *tview.Pages, sidebar *tview.Flex) func() {
+func (s *TabbedPanelWidget) OnChange(
+	panels []panel,
+	pages *tview.Pages,
+	sidebar *tview.Flex,
+) func() {
 	return func() {
 		page, _ := pages.GetFrontPage()
 		index := findCurrentPageByID(panels, page)
@@ -44,8 +48,16 @@ func (s *SidebarWidget) OnChange(panels []panel, pages *tview.Pages, sidebar *tv
 		sidebar.SetTitle(common.Pad(title, 1)).
 			SetTitleColor(tcell.ColorBlue).
 			SetTitleAlign(tview.AlignLeft)
-		go e.widget.Refresh()
-		UI.SetFocus(e.widget.Component())
+		go func() {
+			err := e.widget.Refresh()
+			if err != nil {
+				UI.QueueUpdate(func() {
+					openErrorModal(err)
+				})
+			} else {
+				UI.SetFocus(e.widget.Component())
+			}
+		}()
 	}
 }
 
@@ -108,10 +120,10 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 	}
 }
 
-func panelWidget(ctx *app.Context, focused int, entries []panel) *SidebarWidget {
+func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWidget {
 	sidebar := tview.NewFlex()
 	panels := tview.NewPages()
-	widget := &SidebarWidget{component: sidebar, entries: entries}
+	widget := &TabbedPanelWidget{component: sidebar, entries: entries}
 	panels.SetChangedFunc(widget.OnChange(entries, panels, sidebar))
 
 	previousTab := findNext(panels, entries, true)

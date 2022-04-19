@@ -29,11 +29,11 @@ type Layout struct {
 	layout      *tview.Flex
 	main        *tview.Flex
 	description *tview.TextView
-	details     *SidebarWidget
+	details     *TabbedPanelWidget
 	repos       *StarredWidget
 	issues      *IssuesWidget
 	prs         *PullRequestsWidget
-	sidebar     *SidebarWidget
+	sidebar     *TabbedPanelWidget
 	favourites  *FavouritesWidget
 }
 
@@ -192,7 +192,7 @@ func repositoryPanelWidget(
 	context *app.Context,
 	favourites *FavouritesWidget,
 	starred *StarredWidget,
-) *SidebarWidget {
+) *TabbedPanelWidget {
 	leftSidebarFocused := 0
 	if !favourites.IsEmpty() {
 		leftSidebarFocused = 1
@@ -208,7 +208,7 @@ func repositoryDetailsPanelWidget(
 	ctx *app.Context,
 	issues *IssuesWidget,
 	prs *PullRequestsWidget,
-) *SidebarWidget {
+) *TabbedPanelWidget {
 	focused := 0
 	preferred := ctx.Config.UserConfig.Panels.Details.Preferred
 	if preferred == domain.PullRequestPanel {
