@@ -8,7 +8,20 @@ import (
 	"path/filepath"
 
 	"github.com/cli/oauth/api"
+	"gopkg.in/yaml.v2"
 )
+
+type PanelDetails struct {
+	Preferred string `yaml:"preferred"`
+}
+
+type Panels struct {
+	Details PanelDetails `yaml:"details"`
+}
+
+type UserConfig struct {
+	Panels Panels `yaml:"panels"`
+}
 
 type Config struct {
 	directory      string
@@ -16,6 +29,7 @@ type Config struct {
 	tokenPath      string
 	StoragePath    string
 	Token          *api.AccessToken
+	UserConfig     *UserConfig
 }
 
 const (
@@ -24,6 +38,16 @@ const (
 	configDir   = "gitgazer"
 	StoragePath = "gazers.db"
 )
+
+var defaults = &Config{
+	UserConfig: &UserConfig{
+		Panels: Panels{
+			Details: PanelDetails{
+				Preferred: "issues",
+			},
+		},
+	},
+}
 
 // InitConfig setup the configuration file if need and read user options into state
 // create the access token if required or read it from where it is stored
@@ -42,6 +66,14 @@ func InitConfig() (*Config, error) {
 		StoragePath:    filepath.Join(dir, StoragePath),
 	}
 	config.ensureDirectory()
+	if !config.exists() {
+		config.UserConfig, err = writeConfig(config.configFilepath, defaults.UserConfig)
+	} else {
+		config.UserConfig, err = readConfig(config.configFilepath, defaults.UserConfig)
+	}
+	if err != nil {
+		return nil, err
+	}
 	err = config.retrieveAccessToken()
 	if err != nil {
 		return nil, err
@@ -49,10 +81,47 @@ func InitConfig() (*Config, error) {
 	return config, nil
 }
 
+// writeConfig writes the default config file to the config directory
+func writeConfig(path string, def *UserConfig) (*UserConfig, error) {
+	file, err := os.Create(path)
+	if err != nil {
+		return def, err
+	}
+	e := yaml.NewEncoder(file)
+	if err := e.Encode(def); err != nil {
+		return def, err
+	}
+	defer file.Close()
+	return def, nil
+}
+
+// readConfig returns a new decoded Config struct
+func readConfig(path string, config *UserConfig) (*UserConfig, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	d := yaml.NewDecoder(file)
+	if err := d.Decode(&config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
 func (c *Config) ensureDirectory() {
 	if _, err := os.Stat(c.directory); errors.Is(err, os.ErrNotExist) {
 		os.MkdirAll(c.directory, 0700)
 	}
+}
+
+func (c *Config) exists() bool {
+	if _, err := os.Stat(c.configFilepath); errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+	return true
 }
 
 func (c *Config) persistToken(token *api.AccessToken) (err error) {
