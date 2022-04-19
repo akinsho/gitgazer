@@ -1,6 +1,7 @@
 package app
 
 import (
+	"akinsho/gitgazer/domain"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -12,7 +13,7 @@ import (
 )
 
 type PanelDetails struct {
-	Preferred string `yaml:"preferred"`
+	Preferred domain.PanelName `yaml:"preferred"`
 }
 
 type Panels struct {
@@ -43,7 +44,7 @@ var defaults = &Config{
 	UserConfig: &UserConfig{
 		Panels: Panels{
 			Details: PanelDetails{
-				Preferred: "issues",
+				Preferred: domain.PullRequestPanel,
 			},
 		},
 	},

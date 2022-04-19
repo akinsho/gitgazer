@@ -211,7 +211,7 @@ func repositoryDetailsPanelWidget(
 ) *SidebarWidget {
 	focused := 0
 	preferred := ctx.Config.UserConfig.Panels.Details.Preferred
-	if preferred == "prs" {
+	if preferred == domain.PullRequestPanel {
 		focused = 1
 	}
 	return panelWidget(nil, focused, []panel{

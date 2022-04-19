@@ -1,6 +1,57 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
+
+type PanelName int64
+
+const (
+	UnknownPanel PanelName = iota
+	PullRequestPanel
+	IssuesPanel
+	StarredRepositoriesPanel
+	FavouriteRepositoriesPanel
+)
+
+func (p PanelName) MarshalYAML() (interface{}, error) {
+	return p.String(), nil
+}
+
+func (p *PanelName) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var panelName string
+	if err := unmarshal(&panelName); err != nil {
+		return err
+	}
+	switch panelName {
+	case "prs":
+		*p = PullRequestPanel
+	case "issues":
+		*p = IssuesPanel
+	case "starred":
+		*p = StarredRepositoriesPanel
+	case "favourites":
+		*p = FavouriteRepositoriesPanel
+	default:
+		*p = UnknownPanel
+	}
+	return nil
+}
+
+func (name PanelName) String() string {
+	switch name {
+	case PullRequestPanel:
+		return "prs"
+	case IssuesPanel:
+		return "issues"
+	case StarredRepositoriesPanel:
+		return "starred"
+	case FavouriteRepositoriesPanel:
+		return "favourites"
+	default:
+		return "unknown"
+	}
+}
 
 type Repo interface {
 	GetDescription() string
