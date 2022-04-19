@@ -70,5 +70,13 @@ func (r *PullRequestsWidget) ScrollDown() {
 }
 
 func (p *PullRequestsWidget) IsEmpty() bool {
-	panic("not implemented")
+	if p.context.State.Selected == nil {
+		return true
+	}
+
+	if p.context.State.Selected.PullRequests.TotalCount == 0 {
+		return true
+	}
+
+	return false
 }
