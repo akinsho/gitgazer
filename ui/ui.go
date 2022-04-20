@@ -266,7 +266,7 @@ func layoutWidget(ctx *app.Context) *Layout {
 		AddItem(details.component, 0, 3, false)
 
 	layout.
-		AddItem(sidebar.component, 0, 1, true).
+		AddItem(sidebar.component, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(main, 0, 3, false), 0, 3, false)
 
