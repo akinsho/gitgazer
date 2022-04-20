@@ -9,6 +9,12 @@ import (
 	"github.com/rivo/tview"
 )
 
+type panel struct {
+	title  string
+	widget Widget
+	id     string
+}
+
 type TabbedPanelWidget struct {
 	currentPanel int
 	component    *tview.Flex
@@ -44,24 +50,31 @@ func (s *TabbedPanelWidget) OnChange(
 		}
 		s.SetCurrentIndex(index)
 		e := panels[index]
-		sidebar.SetTitle(common.Pad(getPanelTitle(panels, e), 1))
-		go func() {
-			err := e.widget.Refresh()
-			if err != nil {
-				UI.QueueUpdate(func() {
-					openErrorModal(err)
-				})
-			} else {
-				UI.SetFocus(e.widget.Component())
-			}
-		}()
+		sidebar.SetTitle(common.Pad(getPanelTitle(panels, 0, e), 1))
+		go handleRefresh(e, sidebar, panels)
 	}
 }
 
-type panel struct {
-	title  string
-	widget Widget
-	id     string
+func handleRefresh(selected panel, tabbedPanel *tview.Flex, panels []panel) {
+	err := selected.widget.Refresh()
+	UI.QueueUpdateDraw(func() {
+		if err != nil {
+			openErrorModal(err)
+		} else {
+			itemCount := getListItemCount(selected.widget.Component())
+			tabbedPanel.SetTitle(common.Pad(getPanelTitle(panels, itemCount, selected), 1))
+			UI.SetFocus(selected.widget.Component())
+		}
+	})
+}
+
+func getListItemCount(c tview.Primitive) int {
+	list, ok := c.(*tview.List)
+	itemCount := 0
+	if ok {
+		itemCount = list.GetItemCount()
+	}
+	return itemCount
 }
 
 func sidebarInputHandler(
@@ -148,12 +161,16 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWid
 	return widget
 }
 
-func getPanelTitle(entries []panel, e panel) string {
+func getPanelTitle(entries []panel, itemCount int, e panel) string {
 	title := ""
 	for i, entry := range entries {
 		t := entry.title
 		if entry == e {
-			title += tview.Escape(fmt.Sprintf("[%s]", t))
+			count := ""
+			if itemCount > 0 {
+				count += fmt.Sprintf("(%d)", itemCount)
+			}
+			title += tview.Escape(fmt.Sprintf("[%s%s]", t, count))
 		} else {
 			title += t
 		}
