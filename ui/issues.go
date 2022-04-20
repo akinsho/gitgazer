@@ -107,7 +107,6 @@ func (r *IssuesWidget) Refresh() (err error) {
 		lines = removeBlankLines(lines)
 		r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
 	}
-	UI.Draw()
 	return
 }
 
