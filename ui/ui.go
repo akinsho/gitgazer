@@ -100,8 +100,10 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 }
 
 func openErrorModal(err error) {
+	current := UI.GetFocus()
 	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(_ int, _ string) {
 		view.pages.SwitchToPage("main")
+		UI.SetFocus(current)
 	}), true)
 }
 
