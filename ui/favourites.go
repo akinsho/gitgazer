@@ -53,7 +53,6 @@ func (f *FavouritesWidget) Refresh() (err error) {
 		f.component.AddItem(main, secondary, 0, onSelect).
 			ShowSecondaryText(showSecondaryText)
 	}
-	UI.Draw()
 	return
 }
 

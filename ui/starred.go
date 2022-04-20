@@ -89,7 +89,6 @@ func (r *StarredWidget) Refresh() (err error) {
 			ShowSecondaryText(showSecondaryText)
 	}
 	view.repos.addFavouriteIndicators()
-	UI.Draw()
 	return
 }
 
