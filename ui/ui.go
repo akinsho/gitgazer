@@ -101,15 +101,17 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 
 func openErrorModal(err error) {
 	current := UI.GetFocus()
-	view.pages.AddAndSwitchToPage("errors", getErrorModal(err, func(_ int, _ string) {
+	modal := getErrorModal(err, "Sorry! looks like something went wrong", func(_ int, _ string) {
 		view.pages.SwitchToPage("main")
 		UI.SetFocus(current)
-	}), true)
+	})
+	view.pages.AddPage("errors", modal, true, true)
 }
 
-func getErrorModal(err error, onDone func(idx int, label string)) *tview.Modal {
+func getErrorModal(err error, title string, onDone func(int, string)) *tview.Modal {
+	lines := strings.Join([]string{title, "message: " + err.Error()}, "\n")
 	modal := tview.NewModal().
-		SetText(err.Error()).
+		SetText(lines).
 		AddButtons([]string{"OK"}).
 		SetDoneFunc(onDone)
 	return modal
@@ -229,7 +231,7 @@ func repositoryDetailsPanelWidget(
 func setupTheme(_ *app.Config) {
 	theme := tview.Theme{
 		PrimitiveBackgroundColor:    tview.Styles.PrimitiveBackgroundColor,
-		ContrastBackgroundColor:     tview.Styles.ContrastBackgroundColor,
+		ContrastBackgroundColor:     tcell.ColorDimGray,
 		MoreContrastBackgroundColor: tcell.ColorRebeccaPurple,
 		BorderColor:                 tview.Styles.BorderColor,
 		TitleColor:                  tcell.ColorBlue,
