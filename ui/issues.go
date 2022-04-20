@@ -87,7 +87,8 @@ func (r *IssuesWidget) Refresh() (err error) {
 				issueColor = "red"
 			}
 			body := convertToMarkdown(issue.Body)
-			lines = append(lines, []string{
+			lines = append(
+				lines,
 				header,
 				fmt.Sprintf(
 					"[%s]%s[-::bu] %s %s - %s[-:-:-]",
@@ -101,7 +102,7 @@ func (r *IssuesWidget) Refresh() (err error) {
 				fmt.Sprintf("Created at: %s", issue.CreatedAt.Format("02-01-2006 15:04:05")),
 				drawLabels(issue.Labels.Nodes),
 				body,
-			}...)
+			)
 		}
 		lines = removeBlankLines(lines)
 		r.component.SetText(strings.Join(lines, "\n")).SetTextAlign(tview.AlignLeft).ScrollToBeginning()
