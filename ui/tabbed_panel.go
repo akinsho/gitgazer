@@ -50,7 +50,7 @@ func (s *TabbedPanelWidget) OnChange(
 		}
 		s.SetCurrentIndex(index)
 		e := panels[index]
-		sidebar.SetTitle(common.Pad(getPanelTitle(panels, 0, e), 1))
+		sidebar.SetTitle(common.Pad(getPanelTitle(panels, e), 1))
 		go handleRefresh(e, sidebar, panels)
 	}
 }
@@ -61,8 +61,7 @@ func handleRefresh(selected panel, tabbedPanel *tview.Flex, panels []panel) {
 		if err != nil {
 			openErrorModal(err)
 		} else {
-			itemCount := getListItemCount(selected.widget.Component())
-			tabbedPanel.SetTitle(common.Pad(getPanelTitle(panels, itemCount, selected), 1))
+			tabbedPanel.SetTitle(common.Pad(getPanelTitle(panels, selected), 1))
 			UI.SetFocus(selected.widget.Component())
 		}
 	})
@@ -161,20 +160,21 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWid
 	return widget
 }
 
-func getPanelTitle(entries []panel, itemCount int, e panel) string {
+func getPanelTitle(panels []panel, p panel) string {
 	title := ""
-	for i, entry := range entries {
+	for i, entry := range panels {
+		itemCount := getListItemCount(entry.widget.Component())
+		count := ""
+		if itemCount > 0 {
+			count += fmt.Sprintf("(%d)", itemCount)
+		}
 		t := entry.title
-		if entry == e {
-			count := ""
-			if itemCount > 0 {
-				count += fmt.Sprintf("(%d)", itemCount)
-			}
+		if entry == p {
 			title += tview.Escape(fmt.Sprintf("[%s%s]", t, count))
 		} else {
 			title += t
 		}
-		if i < len(entries)-1 {
+		if i < len(panels)-1 {
 			title += " - "
 		}
 	}
