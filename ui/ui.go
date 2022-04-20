@@ -222,13 +222,21 @@ func repositoryDetailsPanelWidget(
 	})
 }
 
-// setupTheme sets up the theme for the application which can be derived from the app's config
 // TODO: pull colour values from config
+// setupTheme sets up the theme for the application which can be derived from the app's config
 func setupTheme(_ *app.Config) {
 	theme := tview.Theme{
-		TitleColor:                  tcell.ColorBlue,
+		PrimitiveBackgroundColor:    tview.Styles.PrimitiveBackgroundColor,
+		ContrastBackgroundColor:     tview.Styles.ContrastBackgroundColor,
 		MoreContrastBackgroundColor: tcell.ColorRebeccaPurple,
-		ContrastBackgroundColor:     tcell.ColorGreen,
+		BorderColor:                 tview.Styles.BorderColor,
+		TitleColor:                  tcell.ColorBlue,
+		GraphicsColor:               tview.Styles.GraphicsColor,
+		PrimaryTextColor:            tview.Styles.PrimaryTextColor,
+		SecondaryTextColor:          tview.Styles.SecondaryTextColor,
+		TertiaryTextColor:           tview.Styles.TertiaryTextColor,
+		InverseTextColor:            tview.Styles.InverseTextColor,
+		ContrastSecondaryTextColor:  tview.Styles.ContrastSecondaryTextColor,
 	}
 	tview.Styles = theme
 }
