@@ -29,10 +29,20 @@ func (c *Context) GetStarred(index int) *domain.Repository {
 }
 
 func (c *Context) GetFavourite(index int) (*domain.Repository, error) {
-	if len(c.State.Favourites) == 0 || index < 0 || index >= len(c.State.Favourites)-1 {
-		return nil, errors.New(fmt.Sprintf("[GetFavourite] Index is out of range: %d", index))
+	favs := c.State.Favourites
+	if len(favs) == 0 {
+		return nil, nil
 	}
-	return c.State.Favourites[index], nil
+	if index < 0 || index > len(favs)-1 {
+		return nil, errors.New(
+			fmt.Sprintf(
+				"[GetFavourite] Index is out of range: %d, length was %d",
+				index,
+				len(favs),
+			),
+		)
+	}
+	return favs[index], nil
 }
 
 func (c *Context) SetFavourites(favourites []*domain.Repository) {
