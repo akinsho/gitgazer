@@ -14,11 +14,21 @@ type State struct {
 	Selected   *domain.Repository
 }
 
+type Logger interface {
+	Write(string)
+	Read() string
+}
+
 type Context struct {
 	Client *api.Client
 	DB     *storage.Database
 	Config *Config
 	State  *State
+	Logger  Logger
+}
+
+func (c *Context) SetLogger(log Logger) {
+	c.Logger = log
 }
 
 func (c *Context) GetStarred(index int) *domain.Repository {

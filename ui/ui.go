@@ -35,6 +35,7 @@ type Layout struct {
 	prs         *PullRequestsWidget
 	sidebar     *TabbedPanelWidget
 	favourites  *FavouritesWidget
+	debug       *LogWidget
 }
 
 func (l *Layout) ActiveList() ListWidget {
@@ -246,6 +247,9 @@ func setupTheme(_ *app.Config) {
 }
 
 func layoutWidget(ctx *app.Context) *Layout {
+	log := logWidget(ctx)
+	ctx.SetLogger(log)
+
 	pages := tview.NewPages()
 	description := tview.NewTextView()
 	main := tview.NewFlex()
@@ -286,6 +290,7 @@ func layoutWidget(ctx *app.Context) *Layout {
 		sidebar:     sidebar,
 		details:     details,
 		prs:         prs,
+		debug:       log,
 		favourites:  favourites,
 	}
 }
