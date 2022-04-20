@@ -271,6 +271,11 @@ func layoutWidget(ctx *app.Context) *Layout {
 		AddItem(description, 0, 1, false).
 		AddItem(details.component, 0, 3, false)
 
+	isDebugging := ctx.Config.UserConfig.Panels.Log.Enabled
+	if isDebugging {
+		main.AddItem(log.component, 0, 1, false)
+	}
+
 	layout.
 		AddItem(sidebar.component, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).

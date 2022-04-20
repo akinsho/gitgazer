@@ -12,12 +12,17 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type LogOptions struct {
+	Enabled bool `yaml:"enabled"`
+}
+
 type PanelDetails struct {
 	Preferred domain.PanelName `yaml:"preferred"`
 }
 
 type Panels struct {
 	Details PanelDetails `yaml:"details"`
+	Log     LogOptions   `yaml:"log"`
 }
 
 type UserConfig struct {
@@ -43,6 +48,9 @@ const (
 var defaults = &Config{
 	UserConfig: &UserConfig{
 		Panels: Panels{
+			Log: LogOptions{
+				Enabled: false,
+			},
 			Details: PanelDetails{
 				Preferred: domain.PullRequestPanel,
 			},
