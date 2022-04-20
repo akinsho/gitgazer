@@ -12,8 +12,12 @@ type FavouritesWidget struct {
 	context   *app.Context
 }
 
-func (f *FavouritesWidget) OnChanged(index int, _, _ string, _ rune) {
-	repo := f.context.GetFavourite(index)
+func (f *FavouritesWidget) OnChanged(index int, main, _ string, _ rune) {
+	repo, err := f.context.GetFavourite(index)
+	if err != nil {
+		openErrorModal(err)
+		return
+	}
 	if repo == nil {
 		return
 	}
