@@ -31,28 +31,32 @@ func (f *FavouritesWidget) SetSelected(i int) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
 func (f *FavouritesWidget) Refresh() (err error) {
-	favourites, err := github.RetrieveFavouriteRepositories(f.context)
-	if err != nil {
-		return err
+	favourites := f.context.State.Favourites
+	if len(favourites) == 0 {
+		f.component.AddItem("Loading favourites...", "", 0, nil)
+		UI.Draw()
+		favourites, err = github.RetrieveFavouriteRepositories(f.context)
+		if err != nil {
+			return err
+		}
+		f.context.SetFavourites(favourites)
 	}
-	f.context.SetFavourites(favourites)
-	if f.component.GetItemCount() > 0 {
-		f.component.Clear()
-	}
+	f.component.Clear()
 	if len(favourites) == 0 {
 		f.component.AddItem("No favourites found", "", 0, nil)
+		return
 	}
 
-	repos := favourites
-	if len(repos) > 20 {
-		repos = favourites[:20]
+	favs := favourites
+	if len(favs) > 20 {
+		favs = favourites[:20]
 	}
 
-	for _, repo := range repos {
+	for _, repo := range favs {
 		main, secondary, showSecondaryText, onSelect := repositoryEntry(repo)
-		f.component.AddItem(main, secondary, 0, onSelect).
-			ShowSecondaryText(showSecondaryText)
+		f.component.AddItem(main, secondary, 0, onSelect).ShowSecondaryText(showSecondaryText)
 	}
+	UI.Draw()
 	return
 }
 

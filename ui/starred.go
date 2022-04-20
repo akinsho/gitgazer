@@ -68,19 +68,26 @@ func (r *StarredWidget) SetSelected(i int) {
 }
 
 func (r *StarredWidget) Refresh() (err error) {
-	repositories, err := github.ListStarredRepositories(r.context.Client)
-	if err != nil {
-		return err
-	}
-	r.context.SetStarred(repositories)
 	r.component.Clear()
-	if len(repositories) == 0 {
+	starred := r.context.State.Starred
+	if len(starred) == 0 {
+		r.component.AddItem("Loading repositories...", "", 0, nil)
+		UI.Draw()
+		starred, err = github.ListStarredRepositories(r.context.Client)
+		if err != nil {
+			return err
+		}
+		r.context.SetStarred(starred)
+	}
+	r.component.Clear()
+	if len(starred) == 0 {
 		r.component.AddItem("No repositories found", "", 0, nil)
+		return
 	}
 
-	repos := repositories
+	repos := starred
 	if len(repos) > 20 {
-		repos = repositories[:20]
+		repos = starred[:20]
 	}
 
 	for _, repo := range repos {
@@ -123,7 +130,6 @@ func reposWidget(ctx *app.Context) *StarredWidget {
 			onRepoSelect(ctx, i, s1, s2, r)
 		},
 	})
-	repos.AddItem("Loading repos...", "", 0, nil)
 	widget.component = repos
 	return widget
 }
