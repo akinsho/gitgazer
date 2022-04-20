@@ -288,23 +288,6 @@ func layoutWidget(ctx *app.Context) *Layout {
 	}
 }
 
-func focusActiveList() {
-	var err error
-	if !view.favourites.IsEmpty() {
-		err = view.favourites.Refresh()
-	} else {
-		err = view.repos.Refresh()
-	}
-	if err != nil {
-		UI.QueueUpdate(func() {
-			openErrorModal(err)
-		})
-	} else {
-		UI.SetFocus(view.ActiveList().Component())
-		view.ActiveList().SetSelected(0)
-	}
-}
-
 func Setup(context *app.Context) error {
 	setupTheme(context.Config)
 	UI = tview.NewApplication()
@@ -313,8 +296,6 @@ func Setup(context *app.Context) error {
 	UI.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		return appInputHandler(view, event)
 	})
-	// Only focus once the application has been mounted
-	go focusActiveList()
 	if err := UI.SetRoot(view.pages, true).EnableMouse(true).Run(); err != nil {
 		return err
 	}
