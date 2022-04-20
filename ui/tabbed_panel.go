@@ -44,10 +44,7 @@ func (s *TabbedPanelWidget) OnChange(
 		}
 		s.SetCurrentIndex(index)
 		e := panels[index]
-		title := getPanelTitle(panels, e)
-		sidebar.SetTitle(common.Pad(title, 1)).
-			SetTitleColor(tcell.ColorBlue).
-			SetTitleAlign(tview.AlignLeft)
+		sidebar.SetTitle(common.Pad(getPanelTitle(panels, e), 1))
 		go func() {
 			err := e.widget.Refresh()
 			if err != nil {
@@ -121,10 +118,14 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 }
 
 func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWidget {
-	sidebar := tview.NewFlex()
+	tabbedPanel := tview.NewFlex()
 	panels := tview.NewPages()
-	widget := &TabbedPanelWidget{component: sidebar, entries: entries}
-	panels.SetChangedFunc(widget.OnChange(entries, panels, sidebar))
+	widget := &TabbedPanelWidget{component: tabbedPanel, entries: entries}
+	panels.SetChangedFunc(widget.OnChange(entries, panels, tabbedPanel))
+
+	tabbedPanel.
+		SetTitleColor(tcell.ColorBlue).
+		SetTitleAlign(tview.AlignLeft)
 
 	previousTab := findNext(panels, entries, true)
 	nextTab := findNext(panels, entries, false)
@@ -133,13 +134,13 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWid
 		panels.AddPage(panel.id, panel.widget.Component(), true, index == focused)
 	}
 
-	sidebar.SetBorderPadding(0, 0, 0, 0).
+	tabbedPanel.SetBorderPadding(0, 0, 0, 0).
 		SetBorder(true).
 		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			return sidebarInputHandler(event, nextTab, previousTab)
 		})
 
-	sidebar.SetDirection(tview.FlexRow).
+	tabbedPanel.SetDirection(tview.FlexRow).
 		AddItem(panels, 0, 1, false)
 
 	panels.SwitchToPage(entries[focused].id)
