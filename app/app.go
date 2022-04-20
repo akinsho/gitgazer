@@ -30,7 +30,7 @@ func (c *Context) GetStarred(index int) *domain.Repository {
 
 func (c *Context) GetFavourite(index int) (*domain.Repository, error) {
 	if len(c.State.Favourites) == 0 || index < 0 || index >= len(c.State.Favourites)-1 {
-		return nil, errors.New(fmt.Sprintf("Index is out of range: %d", index))
+		return nil, errors.New(fmt.Sprintf("[GetFavourite] Index is out of range: %d", index))
 	}
 	return c.State.Favourites[index], nil
 }
