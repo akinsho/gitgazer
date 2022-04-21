@@ -136,6 +136,7 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWid
 	panels.SetChangedFunc(widget.OnChange(entries, panels, tabbedPanel))
 
 	tabbedPanel.
+		SetDirection(tview.FlexRow).
 		SetTitleColor(tcell.ColorBlue).
 		SetTitleAlign(tview.AlignLeft)
 
@@ -152,8 +153,7 @@ func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWid
 			return sidebarInputHandler(event, nextTab, previousTab)
 		})
 
-	tabbedPanel.SetDirection(tview.FlexRow).
-		AddItem(panels, 0, 1, false)
+	tabbedPanel.AddItem(panels, 0, 1, false)
 
 	panels.SwitchToPage(entries[focused].id)
 
