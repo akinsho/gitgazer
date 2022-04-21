@@ -18,7 +18,7 @@ This project is currently in **early development**. It is not ready for daily us
 - [x] Select a subset of repositories as your focused ones
 - [x] Store this list locally so it can be retrieved later
 - [x] Persist credentials
-- [ ] Create config file
+- [x] Create config file
 - [ ] Make repo list sort order consistent
 - [ ] Track the star count for a repository by time window e.g. day, month, year
 - [ ] Visualise star count graphically
