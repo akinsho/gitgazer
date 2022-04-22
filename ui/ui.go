@@ -146,15 +146,13 @@ func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 func throttledListUpdate(duration time.Duration) func(*app.Context, *domain.Repository) {
 	var timer *time.Timer
 	return func(ctx *app.Context, repo *domain.Repository) {
-		r := repo
 		if timer != nil {
 			timer.Stop()
 			timer = nil
 		}
+		ctx.SetSelected(repo)
+		setRepoDescription(repo)
 		timer = time.AfterFunc(duration, func() {
-			ctx.SetSelected(r)
-			setRepoDescription(r)
-			view.ActiveDetails().Context().Logger.Write("Updating repo list")
 			err := view.ActiveDetails().Refresh()
 			if err != nil {
 				openErrorModal(err)
