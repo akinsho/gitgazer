@@ -12,6 +12,10 @@ type FavouritesWidget struct {
 	context   *app.Context
 }
 
+func (f *FavouritesWidget) Context() *app.Context {
+	return f.context
+}
+
 func (f *FavouritesWidget) OnChanged(index int, main, _ string, _ rune) {
 	repo, err := f.context.GetFavourite(index)
 	if err != nil {

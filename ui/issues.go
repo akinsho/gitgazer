@@ -15,24 +15,8 @@ type IssuesWidget struct {
 	context   *app.Context
 }
 
-func issuesWidget(ctx *app.Context) *IssuesWidget {
-	issues := tview.NewTextView().SetDynamicColors(true)
-	return &IssuesWidget{component: issues, context: ctx}
-}
-
-// drawLabels for an issue by pulling out the name and using ascii pill characters on either
-// side of the name
-// @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
-func drawLabels(labels []*domain.Label) string {
-	renderedLabels := []string{}
-	for _, label := range labels {
-		color := "#" + strings.ToUpper(label.Color)
-		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
-		right := fmt.Sprintf("[%s:-:]%s", color, rightPillIcon)
-		name := fmt.Sprintf(`[black:%s]%s`, color, strings.ToUpper(label.Name))
-		renderedLabels = append(renderedLabels, left+name+right)
-	}
-	return strings.Join(renderedLabels, " ")
+func (i *IssuesWidget) Context() *app.Context {
+	return i.context
 }
 
 // scrollUp scroll the issues widget's text view up from the current position by 1 line
@@ -118,4 +102,24 @@ func removeBlankLines(lines []string) []string {
 		}
 	}
 	return filtered
+}
+
+func issuesWidget(ctx *app.Context) *IssuesWidget {
+	issues := tview.NewTextView().SetDynamicColors(true)
+	return &IssuesWidget{component: issues, context: ctx}
+}
+
+// drawLabels for an issue by pulling out the name and using ascii pill characters on either
+// side of the name
+// @see: https://github.com/rivo/tview/blob/5508f4b00266dbbac1ebf7bd45438fe6030280f4/doc.go#L65-L129
+func drawLabels(labels []*domain.Label) string {
+	renderedLabels := []string{}
+	for _, label := range labels {
+		color := "#" + strings.ToUpper(label.Color)
+		left := fmt.Sprintf("[%s]%s", color, leftPillIcon)
+		right := fmt.Sprintf("[%s:-:]%s", color, rightPillIcon)
+		name := fmt.Sprintf(`[black:%s]%s`, color, strings.ToUpper(label.Name))
+		renderedLabels = append(renderedLabels, left+name+right)
+	}
+	return strings.Join(renderedLabels, " ")
 }

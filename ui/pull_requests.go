@@ -13,9 +13,8 @@ type PullRequestsWidget struct {
 	context   *app.Context
 }
 
-func pullRequestsWidget(ctx *app.Context) *PullRequestsWidget {
-	prs := tview.NewTextView().SetDynamicColors(true).SetWrap(true)
-	return &PullRequestsWidget{prs, ctx}
+func (p *PullRequestsWidget) Context() *app.Context {
+	return p.context
 }
 
 func (p *PullRequestsWidget) Component() tview.Primitive {
@@ -79,4 +78,9 @@ func (p *PullRequestsWidget) IsEmpty() bool {
 	}
 
 	return false
+}
+
+func pullRequestsWidget(ctx *app.Context) *PullRequestsWidget {
+	prs := tview.NewTextView().SetDynamicColors(true).SetWrap(true)
+	return &PullRequestsWidget{prs, ctx}
 }

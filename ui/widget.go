@@ -1,9 +1,14 @@
 package ui
 
-import "github.com/rivo/tview"
+import (
+	"akinsho/gitgazer/app"
+
+	"github.com/rivo/tview"
+)
 
 type Widget interface {
 	Refresh() error
+	Context() *app.Context
 	Component() tview.Primitive
 	IsEmpty() bool
 }
