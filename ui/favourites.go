@@ -3,6 +3,7 @@ package ui
 import (
 	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/github"
+	"fmt"
 
 	"github.com/rivo/tview"
 )
@@ -35,6 +36,10 @@ func (f *FavouritesWidget) SetSelected(i int) {
 // refreshFavouritesList fetches all saved repositories from the database and
 // adds them to the View.favourites list.
 func (f *FavouritesWidget) Refresh() (err error) {
+	// FIXME: this happens twice on startup rather than once which causes weird intermittent
+	// race conditions.
+	f.context.Logger.Write("refreshing favourites list")
+	f.component.Clear()
 	favourites := f.context.State.Favourites
 	if len(favourites) == 0 {
 		f.component.AddItem("Loading favourites...", "", 0, nil)
@@ -60,7 +65,7 @@ func (f *FavouritesWidget) Refresh() (err error) {
 		main, secondary, showSecondaryText, onSelect := repositoryEntry(repo)
 		f.component.AddItem(main, secondary, 0, onSelect).ShowSecondaryText(showSecondaryText)
 	}
-	UI.Draw()
+	f.context.Logger.Write(fmt.Sprintf("Favourites item count: %d", f.component.GetItemCount()))
 	return
 }
 
