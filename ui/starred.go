@@ -9,39 +9,15 @@ import (
 	"github.com/rivo/tview"
 )
 
+var heartIcon = "❤"
+
 type StarredWidget struct {
 	component *tview.List
 	context   *app.Context
 }
 
-var heartIcon = "❤"
-
-// isFavourite checks if the repository is a favourite
-// by seeing if the database contains a match by ID
-func isFavourite(ctx *app.Context) bool {
-	r, err := github.GetFavouriteByRepositoryID(ctx, ctx.State.Selected.ID)
-	if err != nil {
-		return false
-	}
-	return r != nil
-}
-
-func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
-	if !isFavourite(ctx) {
-		err := github.FavouriteSelectedRepo(ctx)
-		if err != nil {
-			openErrorModal(err)
-			return
-		}
-		go view.repos.addFavouriteIndicator(index)
-	} else {
-		err := github.UnfavouriteSelected(ctx, index)
-		if err != nil {
-			openErrorModal(err)
-			return
-		}
-		go view.repos.removeFavouriteIndicator(index, ctx.State.Selected)
-	}
+func (s *StarredWidget) Context() *app.Context {
+	return s.context
 }
 
 func (r *StarredWidget) Component() tview.Primitive {
@@ -100,7 +76,7 @@ func (r *StarredWidget) Refresh() (err error) {
 }
 
 // addFavouriteIndicators loops through all repositories and if they have been previously
-// favourited, adds a heart icon to the end of the name.
+// liked, adds a heart icon to the end of the name.
 func (r *StarredWidget) addFavouriteIndicators() {
 	for i := 0; i < r.component.GetItemCount(); i++ {
 		go r.addFavouriteIndicator(i)
@@ -108,7 +84,8 @@ func (r *StarredWidget) addFavouriteIndicators() {
 }
 
 func (r *StarredWidget) addFavouriteIndicator(i int) {
-	if isFavourite(r.context) {
+	repo := r.context.GetStarred(i)
+	if isFavourite(r.context, repo) {
 		main, secondary := r.component.GetItemText(i)
 		r.component.SetItemText(i, fmt.Sprintf("%s [hotpink]%s", main, heartIcon), secondary)
 	}
@@ -122,7 +99,35 @@ func (r *StarredWidget) OnChanged(index int, _, _ string, _ rune) {
 	updateRepositoryList(r.context, repo)
 }
 
-func reposWidget(ctx *app.Context) *StarredWidget {
+// isFavourite checks if the repository is a favourite
+// by seeing if the database contains a match by ID
+func isFavourite(ctx *app.Context, repo *domain.Repository) bool {
+	r, err := github.GetFavouriteByRepositoryID(ctx, repo.ID)
+	if err != nil {
+		return false
+	}
+	return r != nil
+}
+
+func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
+	if !isFavourite(ctx, ctx.State.Selected) {
+		err := github.FavouriteSelectedRepo(ctx)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go view.repos.addFavouriteIndicator(index)
+	} else {
+		err := github.UnfavouriteSelected(ctx, index)
+		if err != nil {
+			openErrorModal(err)
+			return
+		}
+		go view.repos.removeFavouriteIndicator(index, ctx.State.Selected)
+	}
+}
+
+func starredWidget(ctx *app.Context) *StarredWidget {
 	widget := &StarredWidget{context: ctx}
 	repos := listWidget(ListOptions{
 		onChanged: widget.OnChanged,

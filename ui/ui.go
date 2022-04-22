@@ -257,7 +257,7 @@ func layoutWidget(ctx *app.Context) *Layout {
 	layout := tview.NewFlex()
 
 	favourites := favouritesWidget(ctx)
-	repos := reposWidget(ctx)
+	repos := starredWidget(ctx)
 	issues := issuesWidget(ctx)
 	prs := pullRequestsWidget(ctx)
 
