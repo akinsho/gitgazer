@@ -13,6 +13,10 @@ type PullRequestsWidget struct {
 	context   *app.Context
 }
 
+func (p *PullRequestsWidget) Open() error {
+	panic("not implemented") // TODO: Implement
+}
+
 func (p *PullRequestsWidget) Context() *app.Context {
 	return p.context
 }

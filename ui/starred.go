@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/github"
 	"fmt"
@@ -14,6 +15,15 @@ var heartIcon = "❤"
 type StarredWidget struct {
 	component *tview.List
 	context   *app.Context
+}
+
+func (s *StarredWidget) Open() error {
+	url := s.Context().State.Selected.URL
+	err := common.OpenURL(url)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *StarredWidget) Context() *app.Context {

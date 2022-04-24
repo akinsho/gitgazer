@@ -2,6 +2,7 @@ package ui
 
 import (
 	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/github"
 	"fmt"
 
@@ -11,6 +12,16 @@ import (
 type FavouritesWidget struct {
 	component *tview.List
 	context   *app.Context
+}
+
+func (f *FavouritesWidget) Open() error {
+	url := f.Context().State.Selected.URL
+	f.context.Logger.Write(fmt.Sprintf("Opening %s", url))
+	err := common.OpenURL(url)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (f *FavouritesWidget) Context() *app.Context {

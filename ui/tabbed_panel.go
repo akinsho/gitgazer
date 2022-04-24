@@ -99,6 +99,13 @@ func sidebarInputHandler(
 	} else if event.Key() == tcell.KeyCtrlP {
 		previousTab()
 		return nil
+	} else if event.Key() == tcell.KeyCtrlO {
+		err := view.ActiveList().Open()
+		if err != nil {
+			openErrorModal(err)
+			return nil
+		}
+		return nil
 	}
 	return event
 }

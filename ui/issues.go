@@ -15,6 +15,10 @@ type IssuesWidget struct {
 	context   *app.Context
 }
 
+func (r *IssuesWidget) Open() error {
+	panic("not implemented") // TODO: Implement
+}
+
 func (i *IssuesWidget) Context() *app.Context {
 	return i.context
 }

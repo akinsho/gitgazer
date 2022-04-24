@@ -8,6 +8,7 @@ import (
 
 type Widget interface {
 	Refresh() error
+	Open() error
 	Context() *app.Context
 	Component() tview.Primitive
 	IsEmpty() bool
