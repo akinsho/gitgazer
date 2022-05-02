@@ -1,11 +1,11 @@
 package app
 
 import (
+	"fmt"
+
 	"akinsho/gitgazer/api"
 	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/storage"
-	"errors"
-	"fmt"
 )
 
 type State struct {
@@ -24,7 +24,7 @@ type Context struct {
 	DB     *storage.Database
 	Config *Config
 	State  *State
-	Logger  Logger
+	Logger Logger
 }
 
 func (c *Context) SetLogger(log Logger) {
@@ -44,13 +44,9 @@ func (c *Context) GetFavourite(index int) (*domain.Repository, error) {
 		return nil, nil
 	}
 	if index < 0 || index > len(favs)-1 {
-		return nil, errors.New(
-			fmt.Sprintf(
-				"[GetFavourite] Index is out of range: %d, length was %d",
-				index,
-				len(favs),
-			),
-		)
+		return nil, fmt.Errorf("[GetFavourite] Index is out of range: %d, length was %d",
+			index,
+			len(favs))
 	}
 	return favs[index], nil
 }
