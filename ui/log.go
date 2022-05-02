@@ -1,9 +1,10 @@
 package ui
 
 import (
-	"akinsho/gitgazer/app"
 	"fmt"
 	"time"
+
+	"akinsho/gitgazer/app"
 
 	"github.com/rivo/tview"
 )
@@ -38,7 +39,7 @@ func (d *LogWidget) IsEmpty() bool {
 	return d.component.GetText(false) == ""
 }
 
-func logWidget(ctx *app.Context) *LogWidget {
+func logWidget(_ *app.Context) *LogWidget {
 	debug := tview.NewTextView()
 	debug.SetDynamicColors(true).SetBorder(true).SetTitle("Debug")
 	return &LogWidget{debug}

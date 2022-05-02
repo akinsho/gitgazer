@@ -1,9 +1,10 @@
 package ui
 
 import (
+	"fmt"
+
 	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/common"
-	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -136,7 +137,7 @@ func findNext(panels *tview.Pages, entries []panel, reverse bool) func() {
 	}
 }
 
-func panelWidget(ctx *app.Context, focused int, entries []panel) *TabbedPanelWidget {
+func panelWidget(_ *app.Context, focused int, entries []panel) *TabbedPanelWidget {
 	tabbedPanel := tview.NewFlex()
 	panels := tview.NewPages()
 	widget := &TabbedPanelWidget{component: tabbedPanel, entries: entries}

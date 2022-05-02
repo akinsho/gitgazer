@@ -1,11 +1,12 @@
 package ui
 
 import (
+	"fmt"
+
 	"akinsho/gitgazer/app"
 	"akinsho/gitgazer/common"
 	"akinsho/gitgazer/domain"
 	"akinsho/gitgazer/github"
-	"fmt"
 
 	"github.com/rivo/tview"
 )
@@ -119,7 +120,7 @@ func isFavourite(ctx *app.Context, repo *domain.Repository) bool {
 	return r != nil
 }
 
-func onRepoSelect(ctx *app.Context, index int, mainText, secondaryText string, _ rune) {
+func onRepoSelect(ctx *app.Context, index int, _, _ string, _ rune) {
 	if !isFavourite(ctx, ctx.State.Selected) {
 		err := github.FavouriteSelectedRepo(ctx)
 		if err != nil {

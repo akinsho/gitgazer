@@ -1,12 +1,13 @@
 package ui
 
 import (
-	"akinsho/gitgazer/app"
-	"akinsho/gitgazer/common"
-	"akinsho/gitgazer/domain"
 	"fmt"
 	"strings"
 	"time"
+
+	"akinsho/gitgazer/app"
+	"akinsho/gitgazer/common"
+	"akinsho/gitgazer/domain"
 
 	"github.com/charmbracelet/glamour"
 	"github.com/gdamore/tcell/v2"
@@ -134,10 +135,7 @@ func convertToMarkdown(body string) string {
 func repositoryEntry(repo domain.Repo) (string, string, bool, func()) {
 	name := repo.GetName()
 	description := repo.GetDescription()
-	showSecondaryText := false
-	if len(strings.TrimSpace(description)) > 0 {
-		showSecondaryText = true
-	}
+	showSecondaryText := len(strings.TrimSpace(description)) > 0
 	return repoIcon + " " + name, description, showSecondaryText, nil
 }
 
