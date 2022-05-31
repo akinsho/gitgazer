@@ -64,6 +64,7 @@ func handleRefresh(selected panel, tabbedPanel *tview.Flex, panels []panel) {
 		} else {
 			tabbedPanel.SetTitle(common.Pad(getPanelTitle(panels, selected), 1))
 			UI.SetFocus(selected.widget.Component())
+			view.ActiveList().SetSelected(0)
 		}
 	})
 }

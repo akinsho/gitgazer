@@ -200,6 +200,7 @@ func listWidget(opts ListOptions) *tview.List {
 		SetSelectedFunc(opts.onSelected).
 		SetHighlightFullLine(true).
 		SetSecondaryTextColor(tcell.ColorDarkGrey).
+		SetSelectedTextColor(tcell.ColorWhite).
 		SetSelectedBackgroundColor(tcell.ColorRebeccaPurple).
 		SetMainTextColor(tcell.ColorForestGreen).
 		SetMainTextStyle(tcell.StyleDefault.Bold(true)).
