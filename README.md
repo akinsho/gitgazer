@@ -1,5 +1,8 @@
 ### Gitgazer
 
+**This project is archived, I didn't realise when I started it that there is already a much more established and functional project which does most of this
+ie. [`gh-dash`](https://github.com/dlvhdr/gh-dash) as well as some equally impressive up and comers, [`gh-eco`](https://github.com/coloradocolby/gh-eco)**
+
 <img width="1720" alt="Screen Shot 2022-04-14 at 14 56 47" src="https://user-images.githubusercontent.com/22454918/163406302-018e9e60-8fab-4c72-ab95-089b6063a532.png">
 
 Gitgazer is a TUI application that allows you keep track of the repos you ~~spy~~ 👉 _gaze_ upon the most.
